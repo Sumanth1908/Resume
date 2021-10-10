@@ -1,109 +1,52 @@
-import React from "react";
+import React, { ReactElement } from "react";
+import { Tab, Col, Nav, Row } from "react-bootstrap";
+import { ProgrammingLanguages } from "./ProgrammingLanguages";
+import { Tools } from "./Tools";
+
+type TechnicalSkillsProps = {
+  Category: string;
+  Component: ReactElement;
+};
 
 export const TechnicalSkills = () => {
+  const SkillCategories: TechnicalSkillsProps[] = [
+    { Category: "Programming Languages", Component: <ProgrammingLanguages /> },
+    { Category: "Tools", Component: <Tools /> },
+    { Category: "Web Framework", Component: <></> },
+    { Category: "Databases", Component: <></> },
+    { Category: "Containerisation", Component: <></> },
+    { Category: "Deployment", Component: <></> },
+    { Category: "Orchestration", Component: <></> },
+  ];
   return (
-    <div className="section" id="technical-skills">
-      <div>Technical Skills:</div>
-      <div>
-        <div className="inline">
-          <ul>
-            <li>
-              <div className="section">
-                <div>Programming Languages:</div>
-                <ul>
-                  <li>Python</li>
-                  <li>Core-JAVA</li>
-                </ul>
-              </div>
-            </li>
-            <li>
-              <div className="section">
-                <div>Domain:</div>
-                <ul>
-                  <li>DevOps</li>
-                  <li>Python-FullStack</li>
-                </ul>
-              </div>
-            </li>
-            <li>
-              <div className="section">
-                <div>Operating Systems:</div>
-                <ul>
-                  <li>Linux</li>
-                  <li>Windows</li>
-                </ul>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div className="inline">
-          <ul>
-            <li>
-              <div className="section">
-                <div>Tracking Tools:</div>
-                <ul>
-                  <li>Jira</li>
-                </ul>
-              </div>
-            </li>
-            <li>
-              <div className="section">
-                <div>CI Tools:</div>
-                <ul>
-                  <li>Jenkins(CI Server)</li>
-                  <li>scripted-pipelines(groovy)</li>
-                </ul>
-              </div>
-            </li>
-            <li>
-              <div className="section">
-                <div>Web Framework:</div>
-                <ul>
-                  <li>Django</li>
-                  <li>React</li>
-                </ul>
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div className="inline">
-          <ul>
-            <li>
-              <div className="section">
-                <div>Databases:</div>
-                <ul>
-                  <li>RDBMS</li>
-                  <li>ORM based dbs like mysql</li>
-                </ul>
-              </div>
-            </li>
-            <li>
-              <div className="section">
-                <div>Containerisation:</div>
-                <ul>
-                  <li>Docker</li>
-                </ul>
-              </div>
-            </li>
-            <li>
-              <div className="section">
-                <div>Deployment:</div>
-                <ul>
-                  <li>Ansible</li>
-                </ul>
-              </div>
-            </li>
-            <li>
-              <div className="section">
-                <div>Orchestration:</div>
-                <ul>
-                  <li>Kubernetes</li>
-                </ul>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    <>
+      <p>Every Skill is in Linux and Windows</p>
+      <p>Devops</p>
+      <p>Full Stack</p>
+      <Tab.Container defaultActiveKey="Programming Languages">
+        <Row>
+          <Col sm={3}>
+            <Nav variant="pills" className="flex-column">
+              {SkillCategories.map((category) => (
+                <Nav.Item>
+                  <Nav.Link eventKey={category.Category}>
+                    {category.Category}
+                  </Nav.Link>
+                </Nav.Item>
+              ))}
+            </Nav>
+          </Col>
+          <Col sm={9}>
+            <Tab.Content>
+              {SkillCategories.map((category) => (
+                <Tab.Pane eventKey={category.Category}>
+                  {category.Component}
+                </Tab.Pane>
+              ))}
+            </Tab.Content>
+          </Col>
+        </Row>
+      </Tab.Container>
+    </>
   );
 };

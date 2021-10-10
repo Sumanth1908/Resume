@@ -1,6 +1,5 @@
 import React, { ReactElement } from "react";
 import { BasicInfo } from "../BasicInfo/BasicInfo";
-import { Objective } from "../Objective/objective";
 import { Summary } from "../Summary/Summary";
 import { Education } from "../Education/Education";
 import { Softskills } from "../SoftSkills/Softskills";
@@ -15,7 +14,6 @@ type Sections = {
 
 export const Resume = () => {
   const Sections: Sections[] = [
-    { Title: "Objective", Component: <Objective /> },
     { Title: "Summary", Component: <Summary /> },
     { Title: "Education", Component: <Education /> },
     { Title: "Soft Skills", Component: <Softskills /> },
@@ -28,7 +26,7 @@ export const Resume = () => {
       <Card>
         <Card.Body>
           <Tabs
-            defaultActiveKey="Objective"
+            defaultActiveKey="Summary"
             id="resume-section-tab"
             className="mb-3"
           >
