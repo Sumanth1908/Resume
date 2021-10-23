@@ -6,9 +6,7 @@ export const Urls = () => {
   return (
     <Router>
       <Switch>
-        <Route path="/home">
-          <Home />
-        </Route>
+        <Route exact path="/" component={Home} />
       </Switch>
     </Router>
   );
