@@ -15,7 +15,6 @@ export const BasicInfo = () => {
               <a href="sumanthjillepally@gmail.com"></a>
             </BsEnvelope>
             <BsPhone />
-            <h6>Mobile: +91-9010234192</h6>
           </div>
           <div className="col">
             <Objective />
