@@ -12,7 +12,7 @@ export const Projects = () => {
             </div>
             <div>Summary:</div>
             <p>
-              Deploy E2E complete vantage cluster based on pre GCA builds to
+              Deploy E2E complete product based on pre GCA builds to
               identify cross component issues
             </p>
             <div>Roles and responsibilities:</div>
@@ -71,7 +71,7 @@ export const Projects = () => {
         </li>
         <li>
           <div className="section project" id="project-2">
-            <div className="underline">Common Modules (Python Development)</div>
+            <div className="underline">Common Test Modules (Python Development)</div>
             <div>Summary:</div>
             <ul>
               <li>
@@ -103,7 +103,7 @@ export const Projects = () => {
         <li>
           <div className="section project" id="project-3">
             <div className="underline">
-              Auto-Triage (E2E Python Based CI/CD)
+              Automatic Triaging (E2E Python Based CI/CD)
             </div>
             <div>Summary:</div>
             <ul>
