@@ -9,27 +9,25 @@ export const createSampleResume = (): ResumeData => {
     contactInfo: {
       id: uuidv4(),
       name: "Sumanth Jillepally",
-      phone: "+919010234192",
-      email: "sumanthjillepally@gmail.com",
+      phone: "+911234567890",
+      email: "sample@email.com",
       linkedin: "https://linkedin.com/in/sumanthjillepally",
       tagline:
-        "Results-driven Software Development Engineer with extensive experience in designing and implementing robust applications, databases, cloud computing and distributed computing solutions. Recognized for exceptional troubleshooting and debugging skills, consistently resolving complex technical challenges to enhance system performance and reliability. Expertise in collaborating with cross-functional teams to deliver innovative solutions that align with business objectives. Committed to continuous learning and staying abreast of industry trends, driving technological advancements that foster organizational growth.",
+        "sample tagline: Passionate Software Engineer with 5+ years of experience in developing scalable web applications and services.",
     },
     experiences: [
       {
         id: uuidv4(),
-        company: "Electronic Arts, Hyderabad",
-        position: "Software Engineer III",
+        company: "Sample Company, Sample Location",
+        position: "Sample Position",
         startDate: "October 2024",
         endDate: "",
         current: true,
         description:
-          "At Electronic Arts (EA), I developed a scalable, low-latency, event-driven system that facilitates data moderation, transformation, and discovery across game integrators. I spearheaded the complete lifecycle of an AI-driven synthetic data generation initiative at the organizational level, utilizing Agentic AI solutions. Collaborating with cross-functional teams, I implemented Agile methodologies, which enhanced project delivery timelines and team productivity. Additionally, I mentored junior engineers through code reviews and knowledge sharing, fostering skill development and team cohesion.",
+          "As a Senior Software Development Engineer at Sample Company, I lead the design and implementation of scalable software solutions that drive business growth. My role involves collaborating with cross-functional teams to deliver high-quality applications while mentoring junior engineers and promoting best practices in software development.",
         responsibilities: [
-          "Developed scalable, low-latency, event-driven systems for data processing",
-          "Led AI-driven synthetic data generation initiative using Agentic AI solutions",
-          "Implemented Agile methodologies to enhance project delivery timelines",
-          "Mentored junior engineers through code reviews and knowledge sharing",
+          "Sample responsibility one for the sample company project",
+          "Sample responsibility two for the sample company project",
         ],
       },
       {
@@ -40,23 +38,17 @@ export const createSampleResume = (): ResumeData => {
         endDate: "October 2024",
         current: false,
         description:
-          "As part of the Application Engineering team, I have worked as a full stack developer and developed applications on AWS for internal teams in the Amazon Advertising Org, as per Amazonian standards. My prime goal is to innovate and develop applications that contribute to improving user experiences, solving customer problems, and creating revenue.",
+          "Sample description for Amazon experience. Worked on various projects involving cloud computing, distributed systems, and application development.",
         responsibilities: [],
       },
     ],
     projects: [
       {
         id: uuidv4(),
-        title: "Shared Libraries – Java, Python, JavaScript Packages",
-        subtitle:
-          "Developed common/shared libraries in Python, Java and JavaScript. These libraries provide easy way to integrate the most common features that are needed for the applications developed by the team.",
-        description:
-          "Created comprehensive shared libraries across multiple programming languages to standardize common functionalities and improve development efficiency across the organization.",
-        responsibilities: [
-          "Identified and developed packages encapsulating most common functionalities in a generic way, improving code coverage and reusability",
-          "Developed package which encapsulated the operations needed for authorization calls to perform service to service calls",
-          "Established coding standards and documentation for library usage across teams",
-        ],
+        title: "Sample",
+        subtitle: "Sample",
+        description: "Sample",
+        responsibilities: ["Sample", "Sample"],
         technologies: ["Java", "Python", "JavaScript", "Maven", "npm", "PyPI"],
       },
     ],
