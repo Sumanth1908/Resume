@@ -1,0 +1,65 @@
+export interface ContactInfo {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  linkedin: string;
+  tagline: string;
+}
+
+export interface Experience {
+  id: string;
+  company: string;
+  position: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  description: string;
+  responsibilities: string[];
+}
+
+export interface Project {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  responsibilities: string[];
+  technologies: string[];
+}
+
+export interface Skill {
+  id: string;
+  name: string;
+  level: number; // 0-100
+  category: "technical" | "additional";
+}
+
+export interface Education {
+  id: string;
+  institution: string;
+  degree: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+}
+
+export interface Award {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  issuer: string;
+}
+
+export interface ResumeData {
+  id: string;
+  contactInfo: ContactInfo;
+  experiences: Experience[];
+  projects: Project[];
+  skills: Skill[];
+  education: Education[];
+  awards: Award[];
+  createdAt: string;
+  updatedAt: string;
+}
