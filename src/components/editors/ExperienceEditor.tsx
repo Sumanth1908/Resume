@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { addExperience, updateExperience } from "../../store/resumeSlice";
 import { Experience } from "../../types/resume";
-import "./Editor.css";
 import Modal from "@cloudscape-design/components/modal";
 import Box from "@cloudscape-design/components/box";
 import SpaceBetween from "@cloudscape-design/components/space-between";
@@ -10,10 +9,9 @@ import Button from "@cloudscape-design/components/button";
 import Form from "@cloudscape-design/components/form";
 import FormField from "@cloudscape-design/components/form-field";
 import Input from "@cloudscape-design/components/input";
-import DateInput from "@cloudscape-design/components/date-input";
+import DatePicker from "@cloudscape-design/components/date-picker";
 import Textarea from "@cloudscape-design/components/textarea";
 import Checkbox from "@cloudscape-design/components/checkbox";
-import { Grid } from "@cloudscape-design/components";
 
 interface ExperienceEditorProps {
   experience?: Experience;
@@ -26,6 +24,37 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isEditing = !!experience;
+
+  // Helper functions for date conversion
+  const dateToPickerFormat = (dateString: string): string => {
+    if (!dateString) return "";
+    try {
+      // Convert "October 2024" to "2024-10"
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString;
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}`;
+    } catch {
+      return dateString;
+    }
+  };
+
+  const pickerToDateFormat = (pickerValue: string): string => {
+    if (!pickerValue) return "";
+    try {
+      // Convert "2024-10" to "October 2024"
+      const [year, month] = pickerValue.split("-");
+      const date = new Date(parseInt(year), parseInt(month) - 1);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+      });
+    } catch {
+      return pickerValue;
+    }
+  };
 
   const [formData, setFormData] = useState<Omit<Experience, "id">>({
     company: "",
@@ -42,8 +71,8 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
       setFormData({
         company: experience.company,
         position: experience.position,
-        startDate: experience.startDate,
-        endDate: experience.endDate,
+        startDate: dateToPickerFormat(experience.startDate),
+        endDate: dateToPickerFormat(experience.endDate),
         current: experience.current,
         description: experience.description,
         responsibilities:
@@ -96,6 +125,8 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
   const handleSubmit = () => {
     const cleanedData = {
       ...formData,
+      startDate: pickerToDateFormat(formData.startDate),
+      endDate: pickerToDateFormat(formData.endDate),
       responsibilities: formData.responsibilities.filter(
         (r) => r.trim() !== ""
       ),
@@ -134,16 +165,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
       }
     >
       <Form>
-        <Grid
-          gridDefinition={[
-            { colspan: 6 },
-            { colspan: 6 },
-            { colspan: 6 },
-            { colspan: 6 },
-            { colspan: 12 },
-            { colspan: 12 },
-          ]}
-        >
+        <div className="form-row">
           <FormField
             label="Company"
             description="Company or organization name"
@@ -163,24 +185,25 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
               onChange={(e) => handleChange(e.detail.value, "position")}
             />
           </FormField>
+        </div>
 
+        <div className="form-row">
           <FormField label="Start Date" stretch>
-            <DateInput
+            <DatePicker
               value={formData.startDate}
               onChange={(e) => handleChange(e.detail.value, "startDate")}
+              placeholder="Select start date"
               granularity="month"
-              placeholder="YYYY/MM"
             />
           </FormField>
 
           <FormField label="End Date" stretch>
-            <DateInput
-              id="endDate"
+            <DatePicker
               value={formData.endDate}
               onChange={(e) => handleChange(e.detail.value, "endDate")}
               disabled={formData.current}
+              placeholder="Select end date"
               granularity="month"
-              placeholder="YYYY/MM"
             />
             <Checkbox
               checked={formData.current}
@@ -189,54 +212,54 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
               Currently working here
             </Checkbox>
           </FormField>
+        </div>
 
-          <FormField
-            label="Job Description"
-            description="Brief overview of your role and achievements"
-            stretch
-          >
-            <Textarea
-              value={formData.description}
-              onChange={(e) => handleChange(e.detail.value, "description")}
-              rows={4}
-              placeholder="Brief overview of your role and achievements"
-            />
-          </FormField>
+        <FormField
+          label="Job Description"
+          description="Brief overview of your role and achievements"
+          stretch
+        >
+          <Textarea
+            value={formData.description}
+            onChange={(e) => handleChange(e.detail.value, "description")}
+            rows={4}
+            placeholder="Brief overview of your role and achievements"
+          />
+        </FormField>
 
-          <FormField
-            label="Key Responsibilities"
-            description="List your main responsibilities and achievements"
-            stretch
-          >
-            <div className="dynamic-list">
-              {formData.responsibilities.map((responsibility, index) => (
-                <div key={index}>
-                  <Input
-                    value={responsibility}
-                    onChange={(e) =>
-                      handleResponsibilityChange(index, e.detail.value)
-                    }
-                    placeholder="Describe a key responsibility or achievement"
+        <FormField
+          label="Key Responsibilities"
+          description="List your main responsibilities and achievements"
+          stretch
+        >
+          <div className="dynamic-list">
+            {formData.responsibilities.map((responsibility, index) => (
+              <div key={index}>
+                <Input
+                  value={responsibility}
+                  onChange={(e) =>
+                    handleResponsibilityChange(index, e.detail.value)
+                  }
+                  placeholder="Describe a key responsibility or achievement"
+                />
+                {formData.responsibilities.length > 1 && (
+                  <Button
+                    onClick={() => removeResponsibility(index)}
+                    variant="icon"
+                    iconName="close"
                   />
-                  {formData.responsibilities.length > 1 && (
-                    <Button
-                      onClick={() => removeResponsibility(index)}
-                      variant="icon"
-                      iconName="close"
-                    />
-                  )}
-                </div>
-              ))}
-              <Button
-                onClick={addResponsibility}
-                variant="normal"
-                iconName="add-plus"
-              >
-                Add Responsibility
-              </Button>
-            </div>
-          </FormField>
-        </Grid>
+                )}
+              </div>
+            ))}
+            <Button
+              onClick={addResponsibility}
+              variant="normal"
+              iconName="add-plus"
+            >
+              Add Responsibility
+            </Button>
+          </div>
+        </FormField>
       </Form>
     </Modal>
   );

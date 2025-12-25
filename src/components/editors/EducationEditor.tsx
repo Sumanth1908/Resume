@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { addEducation, updateEducation } from "../../store/resumeSlice";
 import { Education } from "../../types/resume";
-import "./Editor.css";
 import Modal from "@cloudscape-design/components/modal";
 import Box from "@cloudscape-design/components/box";
 import SpaceBetween from "@cloudscape-design/components/space-between";
@@ -10,9 +9,8 @@ import Button from "@cloudscape-design/components/button";
 import Form from "@cloudscape-design/components/form";
 import FormField from "@cloudscape-design/components/form-field";
 import Input from "@cloudscape-design/components/input";
-import DateInput from "@cloudscape-design/components/date-input";
+import DatePicker from "@cloudscape-design/components/date-picker";
 import Textarea from "@cloudscape-design/components/textarea";
-import { Grid } from "@cloudscape-design/components";
 // ...existing code...
 
 interface EducationEditorProps {
@@ -26,6 +24,37 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
 }) => {
   const dispatch = useDispatch();
   const isEditing = !!education;
+
+  // Helper functions for date conversion
+  const dateToPickerFormat = (dateString: string): string => {
+    if (!dateString) return "";
+    try {
+      // Convert "October 2024" to "2024-10"
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString;
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}`;
+    } catch {
+      return dateString;
+    }
+  };
+
+  const pickerToDateFormat = (pickerValue: string): string => {
+    if (!pickerValue) return "";
+    try {
+      // Convert "2024-10" to "October 2024"
+      const [year, month] = pickerValue.split("-");
+      const date = new Date(parseInt(year), parseInt(month) - 1);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+      });
+    } catch {
+      return pickerValue;
+    }
+  };
 
   const [formData, setFormData] = useState<Omit<Education, "id">>({
     institution: "",
@@ -42,8 +71,8 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
         institution: education.institution,
         degree: education.degree,
         location: education.location,
-        startDate: education.startDate,
-        endDate: education.endDate,
+        startDate: dateToPickerFormat(education.startDate),
+        endDate: dateToPickerFormat(education.endDate),
         description: education.description,
       });
     } else {
@@ -71,10 +100,16 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
       e.preventDefault();
     }
 
+    const cleanedData = {
+      ...formData,
+      startDate: pickerToDateFormat(formData.startDate),
+      endDate: pickerToDateFormat(formData.endDate),
+    };
+
     if (isEditing && education) {
-      dispatch(updateEducation({ ...formData, id: education.id }));
+      dispatch(updateEducation({ ...cleanedData, id: education.id }));
     } else {
-      dispatch(addEducation(formData));
+      dispatch(addEducation(cleanedData));
     }
 
     setVisible(false);
@@ -105,85 +140,73 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
       }
     >
       <Form>
-        <Grid
-          gridDefinition={[
-            { colspan: 12 },
-            { colspan: 12 },
-            { colspan: 4 },
-            { colspan: 4 },
-            { colspan: 4 },
-            { colspan: 12 },
-          ]}
+        <FormField
+          label="Institute Name"
+          description="Where you studied"
+          stretch
         >
-          <FormField
-            label="Institute Name"
-            description="Where you studied"
-            stretch
-          >
-            <Input
-              type="text"
-              name="institution"
-              value={formData.institution}
-              onChange={(e) => handleChange(e.detail.value, "institution")}
-            />
-          </FormField>
+          <Input
+            type="text"
+            name="institution"
+            value={formData.institution}
+            onChange={(e) => handleChange(e.detail.value, "institution")}
+          />
+        </FormField>
 
-          <FormField
-            label="Degree"
-            description="Your degree or certification"
-            stretch
-          >
-            <Input
-              type="text"
-              name="degree"
-              value={formData.degree}
-              onChange={(e) => handleChange(e.detail.value, "degree")}
-            />
-          </FormField>
+        <FormField
+          label="Degree"
+          description="Your degree or certification"
+          stretch
+        >
+          <Input
+            type="text"
+            name="degree"
+            value={formData.degree}
+            onChange={(e) => handleChange(e.detail.value, "degree")}
+          />
+        </FormField>
 
-          <FormField label="Location" description="City, State" stretch>
-            <Input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={(e) => handleChange(e.detail.value, "location")}
-              placeholder="City, State"
-            />
-          </FormField>
-
-          <FormField label="Start Date" description="When you started">
-            <DateInput
-              name="startDate"
+        <FormField label="Location" description="City, State" stretch>
+          <Input
+            type="text"
+            name="location"
+            value={formData.location}
+            onChange={(e) => handleChange(e.detail.value, "location")}
+            placeholder="City, State"
+          />
+        </FormField>
+        <div className="form-row">
+          <FormField label="Start Date">
+            <DatePicker
               value={formData.startDate}
-              granularity="month"
-              placeholder="YYYY/MM"
               onChange={(e) => handleChange(e.detail.value, "startDate")}
-            />
-          </FormField>
-
-          <FormField label="End Date" description="When you graduated">
-            <DateInput
-              name="endDate"
-              value={formData.endDate}
+              placeholder="Select start date"
               granularity="month"
-              placeholder="YYYY/MM"
-              onChange={(e) => handleChange(e.detail.value, "endDate")}
             />
           </FormField>
 
-          <FormField
-            label="Summary"
-            description="Brief summary of your education"
-          >
-            <Textarea
-              name="description"
-              value={formData.description}
-              onChange={(e) => handleChange(e.detail.value, "description")}
-              rows={3}
-              placeholder="Brief summary of your education"
+          <FormField label="End Date">
+            <DatePicker
+              value={formData.endDate}
+              onChange={(e) => handleChange(e.detail.value, "endDate")}
+              placeholder="Select end date"
+              granularity="month"
             />
           </FormField>
-        </Grid>
+        </div>
+
+        <FormField
+          label="Summary"
+          description="Brief summary of your education"
+        >
+          <Textarea
+            name="description"
+            value={formData.description}
+            onChange={(e) => handleChange(e.detail.value, "description")}
+            rows={3}
+            placeholder="Brief summary of your education"
+          />
+        </FormField>
       </Form>
     </Modal>
   );

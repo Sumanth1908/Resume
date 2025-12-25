@@ -11,7 +11,6 @@ import Form from "@cloudscape-design/components/form";
 import FormField from "@cloudscape-design/components/form-field";
 import Input from "@cloudscape-design/components/input";
 import Textarea from "@cloudscape-design/components/textarea";
-import { Grid } from "@cloudscape-design/components";
 
 interface ProjectEditorProps {
   project?: Project;
@@ -118,135 +117,118 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
         </Box>
       }
     >
-      <Form>
-        <Grid
-          gridDefinition={[
-            { colspan: 12 },
-            { colspan: 12 },
-            { colspan: 12 },
-            { colspan: 12 },
-            { colspan: 12 },
-          ]}
+      <Form className="editor-form">
+        <FormField
+          label="Project Title"
+          description="Name of your project"
+          stretch
         >
-          <FormField
-            label="Project Title"
-            description="Name of your project"
-            stretch
-          >
-            <Input
-              type="text"
-              value={formData.title}
-              onChange={(e) => handleChange(e.detail.value, "title")}
-              placeholder="e.g., E-commerce Platform, Mobile App"
-            />
-          </FormField>
+          <Input
+            type="text"
+            id="title"
+            value={formData.title}
+            onChange={(e) => handleChange(e.detail.value, "title")}
+            placeholder="e.g., E-commerce Platform, Mobile App"
+          />
+        </FormField>
 
-          <FormField
-            label="Project Subtitle"
-            description="Brief one-line description"
-            stretch
-          >
-            <Input
-              type="text"
-              value={formData.subtitle}
-              onChange={(e) => handleChange(e.detail.value, "subtitle")}
-              placeholder="Brief one-line description"
-            />
-          </FormField>
+        <FormField
+          label="Project Subtitle"
+          description="Brief one-line description"
+          stretch
+        >
+          <Input
+            type="text"
+            id="subtitle"
+            value={formData.subtitle}
+            onChange={(e) => handleChange(e.detail.value, "subtitle")}
+            placeholder="Brief one-line description"
+          />
+        </FormField>
 
-          <FormField
-            label="Project Description"
-            description="Detailed description of the project"
-            stretch
-          >
-            <Textarea
-              value={formData.description}
-              onChange={(e) => handleChange(e.detail.value, "description")}
-              rows={4}
-              placeholder="Detailed description of the project, its purpose, and impact"
-            />
-          </FormField>
+        <FormField
+          label="Project Description"
+          description="Detailed description of the project"
+          stretch
+        >
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) => handleChange(e.detail.value, "description")}
+            rows={4}
+            placeholder="Detailed description of the project, its purpose, and impact"
+          />
+        </FormField>
 
-          <FormField
-            label="Technologies Used"
-            description="List the technologies used in this project"
-            stretch
-          >
-            <div className="dynamic-list">
-              {formData.technologies.map((tech, index) => (
-                <Grid
-                  key={index}
-                  gridDefinition={[{ colspan: 11 }, { colspan: 1 }]}
-                >
-                  <Input
-                    type="text"
-                    value={tech}
-                    onChange={(e) =>
-                      handleArrayChange("technologies", index, e.detail.value)
-                    }
-                    placeholder="e.g., React, Node.js, MongoDB"
+        <FormField
+          label="Technologies Used"
+          description="List the technologies used in this project"
+          stretch
+        >
+          <div className="dynamic-list">
+            {formData.technologies.map((tech, index) => (
+              <div key={index} className="list-item">
+                <Input
+                  type="text"
+                  value={tech}
+                  onChange={(e) =>
+                    handleArrayChange("technologies", index, e.detail.value)
+                  }
+                  placeholder="e.g., React, Node.js, MongoDB"
+                />
+                {formData.technologies.length > 1 && (
+                  <Button
+                    onClick={() => removeArrayItem("technologies", index)}
+                    variant="icon"
+                    iconName="close"
                   />
-                  {formData.technologies.length > 1 && (
-                    <Button
-                      onClick={() => removeArrayItem("technologies", index)}
-                      variant="icon"
-                      iconName="close"
-                    />
-                  )}
-                </Grid>
-              ))}
-              <Button
-                onClick={() => addArrayItem("technologies")}
-                variant="normal"
-                iconName="add-plus"
-              >
-                Add Technology
-              </Button>
-            </div>
-          </FormField>
+                )}
+              </div>
+            ))}
+            <Button
+              onClick={() => addArrayItem("technologies")}
+              variant="normal"
+              iconName="add-plus"
+            >
+              Add Technology
+            </Button>
+          </div>
+        </FormField>
 
-          <FormField
-            label="Key Responsibilities & Achievements"
-            description="List your main contributions to the project"
-            stretch
-          >
-            <div className="dynamic-list">
-              {formData.responsibilities.map((responsibility, index) => (
-                <Grid
-                  key={index}
-                  gridDefinition={[{ colspan: 11 }, { colspan: 1 }]}
-                >
-                  <Input
-                    type="text"
-                    value={responsibility}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        "responsibilities",
-                        index,
-                        e.detail.value
-                      )
-                    }
-                    placeholder="Describe your role or achievement in this project"
+        <FormField
+          label="Key Responsibilities & Achievements"
+          description="List your main contributions to the project"
+          stretch
+        >
+          <div className="dynamic-list">
+            {formData.responsibilities.map((responsibility, index) => (
+              <div key={index} className="list-item">
+                <Input
+                  type="text"
+                  value={responsibility}
+                  onChange={(e) =>
+                    handleArrayChange("responsibilities", index, e.detail.value)
+                  }
+                  placeholder="Describe your role or achievement in this project"
+                />
+                {formData.responsibilities.length > 1 && (
+                  <Button
+                    onClick={() => removeArrayItem("responsibilities", index)}
+                    variant="icon"
+                    iconName="close"
                   />
-                  {formData.responsibilities.length > 1 && (
-                    <Button
-                      onClick={() => removeArrayItem("responsibilities", index)}
-                      variant="icon"
-                      iconName="close"
-                    />
-                  )}
-                </Grid>
-              ))}
-              <Button
-                onClick={() => addArrayItem("responsibilities")}
-                variant="normal"
-                iconName="add-plus"
-              >
-                Add Responsibility
-              </Button>
-            </div>
-          </FormField>
-        </Grid>
+                )}
+              </div>
+            ))}
+            <Button
+              onClick={() => addArrayItem("responsibilities")}
+              variant="normal"
+              iconName="add-plus"
+            >
+              Add Responsibility
+            </Button>
+          </div>
+        </FormField>
       </Form>
     </Modal>
   );

@@ -7,12 +7,7 @@ interface AppHeaderProps {
   utilities?: Array<any>;
 }
 
-const AppHeader: React.FC<AppHeaderProps> = ({
-  title = "Resume Builder",
-  utilities,
-}) => {
-  const defaultUtilities = [{}];
-
+const AppHeader: React.FC<AppHeaderProps> = ({ title, utilities }) => {
   return (
     <TopNavigation
       identity={{ href: "/", title }}
@@ -20,7 +15,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         overflowMenuTriggerText: "More",
         searchIconAriaLabel: "Search",
       }}
-      utilities={utilities || defaultUtilities}
+      utilities={utilities || []}
     />
   );
 };

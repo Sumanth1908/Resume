@@ -7,7 +7,6 @@ interface AddSectionDropdownProps {
 }
 
 const items = [
-  { id: "contact", text: "Contact" },
   { id: "experience", text: "Experience" },
   { id: "project", text: "Project" },
   { id: "skill", text: "Skill" },

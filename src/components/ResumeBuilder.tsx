@@ -5,13 +5,14 @@ import { RootState } from "../store/store";
 import { setResume, createNewResume, setEditing } from "../store/resumeSlice";
 import { DatabaseService } from "../services/database";
 import { PDFExportService } from "../services/pdfExport";
+import { JSONExportService } from "../services/jsonExport";
+import { WordExportService } from "../services/wordExport";
 import ResumeDisplay from "./ResumeDisplay";
 import ContactInfoEditor from "./editors/ContactInfoEditor";
 import ExperienceEditor from "./editors/ExperienceEditor";
 import ProjectEditor from "./editors/ProjectEditor";
 import SkillEditor from "./editors/SkillEditor";
 import EducationEditor from "./editors/EducationEditor";
-import AwardEditor from "./editors/AwardEditor";
 import "./ResumeBuilder.css";
 import Button from "@cloudscape-design/components/button";
 import SpaceBetween from "@cloudscape-design/components/space-between";
@@ -20,6 +21,7 @@ import Container from "@cloudscape-design/components/container";
 import AppLayout from "@cloudscape-design/components/app-layout";
 import AppHeader from "./AppHeader";
 import AddSectionDropdown from "./AddSectionDropdown";
+import Modal from "@cloudscape-design/components/modal";
 
 const ResumeBuilder: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +34,8 @@ const ResumeBuilder: React.FC = () => {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Use editingSection from Redux instead of local state
   const activeEditor = editingSection;
@@ -52,10 +56,6 @@ const ResumeBuilder: React.FC = () => {
   const selectedSkill =
     editingItemId && currentResume
       ? currentResume.skills.find((s) => s.id === editingItemId)
-      : undefined;
-  const selectedAward =
-    editingItemId && currentResume
-      ? currentResume.awards.find((a) => a.id === editingItemId)
       : undefined;
 
   // Debug logging
@@ -121,7 +121,14 @@ const ResumeBuilder: React.FC = () => {
   };
 
   const handleExportPDF = async () => {
+    const originalPreviewMode = isPreviewMode;
     try {
+      // Temporarily switch to preview mode to hide edit buttons
+      setIsPreviewMode(true);
+
+      // Wait for the component to re-render
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const filename = currentResume?.contactInfo.name
         ? `${currentResume.contactInfo.name.replace(/\s+/g, "_")}_Resume.pdf`
         : "Resume.pdf";
@@ -129,7 +136,39 @@ const ResumeBuilder: React.FC = () => {
       await PDFExportService.exportToPDF("resume-display", filename);
     } catch (error) {
       console.error("Failed to export PDF:", error);
-      alert("Failed to export PDF. Please try again.");
+      setErrorMessage("Failed to export PDF. Please try again.");
+      setShowErrorModal(true);
+    } finally {
+      // Restore original preview mode
+      setIsPreviewMode(originalPreviewMode);
+    }
+  };
+
+  const handleExportWord = async () => {
+    if (currentResume) {
+      try {
+        const filename = currentResume.contactInfo.name
+          ? `${currentResume.contactInfo.name.replace(/\s+/g, "_")}_Resume.docx`
+          : "Resume.docx";
+
+        await WordExportService.exportToWord(currentResume, filename);
+      } catch (error) {
+        console.error("Failed to export Word document:", error);
+        setErrorMessage("Failed to export Word document. Please try again.");
+        setShowErrorModal(true);
+      }
+    }
+  };
+
+  const handleExportJSON = () => {
+    if (currentResume) {
+      try {
+        JSONExportService.exportToJSON(currentResume);
+      } catch (error) {
+        console.error("Failed to export JSON:", error);
+        setErrorMessage("Failed to export JSON. Please try again.");
+        setShowErrorModal(true);
+      }
     }
   };
 
@@ -154,6 +193,12 @@ const ResumeBuilder: React.FC = () => {
   }
 
   // Removed addSectionItems as we're now defining items directly in navigationItems
+  const exportDropdownItems = [
+    { id: "pdf", text: "Export as PDF", iconName: "file" as const },
+    { id: "word", text: "Export as Word", iconName: "file" as const },
+    { id: "json", text: "Export as JSON", iconName: "file-open" as const },
+  ];
+
   const headerUtilities = [
     // Page actions
     ...(isPreviewMode
@@ -164,9 +209,15 @@ const ResumeBuilder: React.FC = () => {
             onClick: togglePreview,
           },
           {
-            type: "button" as const,
-            text: "Export PDF",
-            onClick: handleExportPDF,
+            type: "menu-dropdown" as const,
+            text: "Export",
+            items: exportDropdownItems,
+            onItemClick: (event: any) => {
+              const id = event.detail.id;
+              if (id === "pdf") handleExportPDF();
+              else if (id === "word") handleExportWord();
+              else if (id === "json") handleExportJSON();
+            },
           },
         ]
       : [
@@ -182,98 +233,124 @@ const ResumeBuilder: React.FC = () => {
             onClick: togglePreview,
           },
           {
-            type: "button" as const,
-            text: "Export PDF",
-            onClick: handleExportPDF,
+            type: "menu-dropdown" as const,
+            text: "Export",
+            items: exportDropdownItems,
+            onItemClick: (event: any) => {
+              const id = event.detail.id;
+              if (id === "pdf") handleExportPDF();
+              else if (id === "word") handleExportWord();
+              else if (id === "json") handleExportJSON();
+            },
           },
         ]),
   ];
 
   return (
-    <AppLayout
-      contentType="form"
-      navigationHide
-      toolsHide
-      content={
-        <Container>
-          <SpaceBetween size="l">
-            <AppHeader
-              title={isPreviewMode ? "Resume Preview" : "Resume Builder"}
-              utilities={headerUtilities}
-            />
+    <>
+      <AppLayout
+        contentType="form"
+        navigationHide
+        toolsHide
+        content={
+          <Container>
+            <SpaceBetween size="l">
+              <AppHeader
+                title={isPreviewMode ? "Resume Preview" : "Resume Builder"}
+                utilities={headerUtilities}
+              />
 
-            {/* Add Section dropdown moved out of header to avoid TopNavigation callback issues */}
-            {!isPreviewMode && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  marginTop: 8,
-                }}
-              >
-                <AddSectionDropdown
-                  disabled={activeEditor !== ""}
-                  onOpenEditor={openEditor}
-                />
-              </div>
-            )}
-
-            <div>
-              <ResumeDisplay resume={currentResume} isPreview={isPreviewMode} />
-
-              {!isPreviewMode && currentResume.experiences.length === 0 && (
-                <Box padding={{ vertical: "xl" }} textAlign="center">
-                  <SpaceBetween size="s">
-                    <Button
-                      onClick={() => openEditor("experience")}
-                      iconName="add-plus"
-                      variant="primary"
-                    >
-                      Add your first work experience
-                    </Button>
-                    <Box variant="p" color="text-body-secondary">
-                      Click to start adding your professional experience
-                    </Box>
-                  </SpaceBetween>
-                </Box>
+              {/* Add Section dropdown moved out of header to avoid TopNavigation callback issues */}
+              {!isPreviewMode && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    marginTop: 8,
+                  }}
+                >
+                  <AddSectionDropdown
+                    disabled={activeEditor !== ""}
+                    onOpenEditor={openEditor}
+                  />
+                </div>
               )}
-            </div>
 
-            {isEditing && (
-              <>
-                {activeEditor === "contact" && (
-                  <ContactInfoEditor onClose={closeEditor} />
+              <div>
+                <ResumeDisplay
+                  resume={currentResume}
+                  isPreview={isPreviewMode}
+                />
+
+                {!isPreviewMode && currentResume.experiences.length === 0 && (
+                  <Box padding={{ vertical: "xl" }} textAlign="center">
+                    <SpaceBetween size="s">
+                      <Button
+                        onClick={() => openEditor("experience")}
+                        iconName="add-plus"
+                        variant="primary"
+                      >
+                        Add your first work experience
+                      </Button>
+                      <Box variant="p" color="text-body-secondary">
+                        Click to start adding your professional experience
+                      </Box>
+                    </SpaceBetween>
+                  </Box>
                 )}
-                {activeEditor === "experience" && (
-                  <ExperienceEditor
-                    experience={selectedExperience}
-                    onClose={closeEditor}
-                  />
-                )}
-                {activeEditor === "project" && (
-                  <ProjectEditor
-                    project={selectedProject}
-                    onClose={closeEditor}
-                  />
-                )}
-                {activeEditor === "skill" && (
-                  <SkillEditor skill={selectedSkill} onClose={closeEditor} />
-                )}
-                {activeEditor === "education" && (
-                  <EducationEditor
-                    education={selectedEducation}
-                    onClose={closeEditor}
-                  />
-                )}
-                {activeEditor === "award" && (
-                  <AwardEditor award={selectedAward} onClose={closeEditor} />
-                )}
-              </>
-            )}
-          </SpaceBetween>
-        </Container>
-      }
-    />
+              </div>
+
+              {isEditing && (
+                <>
+                  {activeEditor === "contact" && (
+                    <ContactInfoEditor onClose={closeEditor} />
+                  )}
+                  {activeEditor === "experience" && (
+                    <ExperienceEditor
+                      experience={selectedExperience}
+                      onClose={closeEditor}
+                    />
+                  )}
+                  {activeEditor === "project" && (
+                    <ProjectEditor
+                      project={selectedProject}
+                      onClose={closeEditor}
+                    />
+                  )}
+                  {activeEditor === "skill" && (
+                    <SkillEditor skill={selectedSkill} onClose={closeEditor} />
+                  )}
+                  {activeEditor === "education" && (
+                    <EducationEditor
+                      education={selectedEducation}
+                      onClose={closeEditor}
+                    />
+                  )}
+                </>
+              )}
+            </SpaceBetween>
+          </Container>
+        }
+      />
+
+      <Modal
+        visible={showErrorModal}
+        onDismiss={() => setShowErrorModal(false)}
+        header="Error"
+        closeAriaLabel="Close modal"
+        footer={
+          <Box float="right">
+            <SpaceBetween direction="horizontal" size="xs">
+              <Button variant="link" onClick={() => setShowErrorModal(false)}>
+                Close
+              </Button>
+            </SpaceBetween>
+          </Box>
+        }
+      >
+        {errorMessage}
+      </Modal>
+    </>
   );
 };
 

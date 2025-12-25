@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { DatabaseService } from "../services/database";
 import { ResumeData } from "../types/resume";
 import { createSampleResume } from "../utils/sampleData";
-import "./Home.css";
+import { formatDateDetailed } from "../utils/dateUtils";
 import Button from "@cloudscape-design/components/button";
 import Header from "@cloudscape-design/components/header";
 import SpaceBetween from "@cloudscape-design/components/space-between";
@@ -11,14 +11,20 @@ import Input from "@cloudscape-design/components/input";
 import Cards from "@cloudscape-design/components/cards";
 import Box from "@cloudscape-design/components/box";
 import TextContent from "@cloudscape-design/components/text-content";
-import Grid from "@cloudscape-design/components/grid";
 import { AppLayout, Container } from "@cloudscape-design/components";
+import Modal from "@cloudscape-design/components/modal";
+import ButtonDropdown from "@cloudscape-design/components/button-dropdown";
 import AppHeader from "./AppHeader";
+import { JSONExportService } from "../services/jsonExport";
 
 const Home: React.FC = () => {
   const [resumes, setResumes] = useState<ResumeData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [resumeToDelete, setResumeToDelete] = useState<string | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,23 +63,59 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this resume?")) {
+  const handleDelete = (id: string) => {
+    setResumeToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (resumeToDelete) {
       try {
-        await DatabaseService.deleteResume(id);
+        await DatabaseService.deleteResume(resumeToDelete);
         loadResumes();
+        setShowDeleteModal(false);
+        setResumeToDelete(null);
       } catch (error) {
         console.error("Failed to delete resume:", error);
       }
     }
   };
 
+  const handleImportJSON = () => {
+    setShowImportModal(true);
+  };
+
+  const handleFileImport = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith(".json")) {
+      alert("Please select a valid JSON file.");
+      return;
+    }
+
+    setIsImporting(true);
+    try {
+      const importedResume = await JSONExportService.importFromJSON(file);
+      await DatabaseService.saveResume(importedResume);
+      navigate(`/resume/${importedResume.id}`);
+      setShowImportModal(false);
+    } catch (error) {
+      console.error("Failed to import JSON:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to import JSON. Please try again."
+      );
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+    return formatDateDetailed(dateString);
   };
 
   if (loading) {
@@ -86,110 +128,190 @@ const Home: React.FC = () => {
   }
 
   return (
-    <AppLayout
-      toolsHide
-      navigationHide
-      content={
-        <Container>
-          <SpaceBetween size="l">
-            <AppHeader />
-            <Header
-              variant="h1"
-              actions={
-                <SpaceBetween direction="horizontal" size="xs">
-                  <Input
-                    type="search"
-                    placeholder="Search ..."
-                    value={searchQuery}
-                    onChange={(e) => handleSearch(e.detail.value)}
-                  />
-                  <Button
-                    variant="primary"
-                    onClick={() => handleCreateNew(false)}
-                    iconName="add-plus"
-                  >
-                    New Resume
-                  </Button>
-                  <Button
-                    variant="normal"
-                    onClick={() => handleCreateNew(true)}
-                    iconName="file"
-                  >
-                    Use Template
-                  </Button>
-                </SpaceBetween>
-              }
-            ></Header>
-
-            {resumes.length === 0 ? (
-              <Box textAlign="center" margin={{ top: "xxl" }}>
-                <TextContent>
-                  <h2>No resumes found</h2>
-                  <p>Create a new resume or use our template to get started</p>
-                </TextContent>
-                <Box margin={{ top: "l" }}>
+    <>
+      <AppLayout
+        toolsHide
+        navigationHide
+        content={
+          <Container>
+            <SpaceBetween size="l">
+              <AppHeader />
+              <Header
+                variant="h1"
+                actions={
                   <SpaceBetween direction="horizontal" size="xs">
-                    <Button
-                      variant="primary"
-                      onClick={() => handleCreateNew(false)}
-                      iconName="add-plus"
+                    <Input
+                      type="search"
+                      placeholder="Search ..."
+                      value={searchQuery}
+                      onChange={(e) => handleSearch(e.detail.value)}
+                    />
+                    <ButtonDropdown
+                      items={[
+                        { id: "new", text: "New Resume", iconName: "add-plus" },
+                        {
+                          id: "template",
+                          text: "New from Template",
+                          iconName: "file",
+                        },
+                        {
+                          id: "import",
+                          text: "Import from JSON",
+                          iconName: "upload",
+                        },
+                      ]}
+                      onItemClick={(event) => {
+                        const id = event.detail.id;
+                        if (id === "new") handleCreateNew(false);
+                        else if (id === "template") handleCreateNew(true);
+                        else if (id === "import") handleImportJSON();
+                      }}
                     >
-                      Create New Resume
-                    </Button>
-                    <Button
-                      variant="normal"
-                      onClick={() => handleCreateNew(true)}
-                      iconName="file"
-                    >
-                      Use Template
-                    </Button>
+                      Create Resume
+                    </ButtonDropdown>
                   </SpaceBetween>
+                }
+              ></Header>
+
+              {resumes.length === 0 ? (
+                <Box textAlign="center" margin={{ top: "xxl" }}>
+                  <TextContent>
+                    <h2>No resumes found</h2>
+                    <p>
+                      Create a new resume or use our template to get started
+                    </p>
+                  </TextContent>
+                  <Box margin={{ top: "l" }}>
+                    <SpaceBetween direction="horizontal" size="xs">
+                      <Button
+                        variant="primary"
+                        onClick={() => handleCreateNew(false)}
+                        iconName="add-plus"
+                      >
+                        Create New Resume
+                      </Button>
+                      <Button
+                        variant="normal"
+                        onClick={() => handleCreateNew(true)}
+                        iconName="file"
+                      >
+                        Use Template
+                      </Button>
+                    </SpaceBetween>
+                  </Box>
                 </Box>
-              </Box>
-            ) : (
-              <Cards
-                items={resumes}
-                cardDefinition={{
-                  header: (item) => item.contactInfo.name || "Untitled Resume",
-                  sections: [
-                    {
-                      content: (item) => (
-                        <SpaceBetween size="s">
-                          <div>{item.contactInfo.email}</div>
-                          <Grid>
-                            <div>
+              ) : (
+                <Cards
+                  items={resumes}
+                  cardDefinition={{
+                    header: (item) => (
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span>
+                          {item.contactInfo.name || "Untitled Resume"}
+                        </span>
+                        <SpaceBetween direction="horizontal" size="xs">
+                          <Button
+                            variant="icon"
+                            iconName="edit"
+                            onClick={() => navigate(`/resume/${item.id}`)}
+                          />
+                          <Button
+                            variant="icon"
+                            iconName="remove"
+                            onClick={() => handleDelete(item.id)}
+                          />
+                        </SpaceBetween>
+                      </div>
+                    ),
+                    sections: [
+                      {
+                        content: (item) => (
+                          <SpaceBetween size="s">
+                            <div>{item.contactInfo.email}</div>
+                            <div style={{ fontStyle: "italic" }}>
                               Last updated: {formatDate(item.updatedAt)}
                             </div>
-                            <Button
-                              variant="icon"
-                              iconName="edit"
-                              onClick={() => navigate(`/resume/${item.id}`)}
-                            ></Button>
-                            <Button
-                              variant="icon"
-                              iconName="remove"
-                              onClick={() => handleDelete(item.id)}
-                            ></Button>
-                          </Grid>
-                        </SpaceBetween>
-                      ),
-                    },
-                  ],
-                }}
-                cardsPerRow={[
-                  { cards: 1, minWidth: 0 },
-                  { cards: 2, minWidth: 500 },
-                  { cards: 3, minWidth: 900 },
-                ]}
-                header={
-                  <Header counter={`(${resumes.length})`}>Your Resumes</Header>
-                }
-              />
-            )}
-          </SpaceBetween>
-        </Container>
-      }
-    />
+                          </SpaceBetween>
+                        ),
+                      },
+                    ],
+                  }}
+                  cardsPerRow={[
+                    { cards: 1, minWidth: 0 },
+                    { cards: 2, minWidth: 500 },
+                    { cards: 3, minWidth: 900 },
+                  ]}
+                  header={
+                    <Header counter={`(${resumes.length})`}>
+                      Your Resumes
+                    </Header>
+                  }
+                />
+              )}
+            </SpaceBetween>
+          </Container>
+        }
+      />
+
+      <Modal
+        visible={showDeleteModal}
+        onDismiss={() => setShowDeleteModal(false)}
+        header="Delete Resume"
+        closeAriaLabel="Close modal"
+        footer={
+          <Box float="right">
+            <SpaceBetween direction="horizontal" size="xs">
+              <Button variant="link" onClick={() => setShowDeleteModal(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={confirmDelete}>
+                Delete
+              </Button>
+            </SpaceBetween>
+          </Box>
+        }
+      >
+        Are you sure you want to delete this resume? This action cannot be
+        undone.
+      </Modal>
+
+      <Modal
+        visible={showImportModal}
+        onDismiss={() => setShowImportModal(false)}
+        header="Import Resume from JSON"
+        closeAriaLabel="Close modal"
+        footer={
+          <Box float="right">
+            <SpaceBetween direction="horizontal" size="xs">
+              <Button variant="link" onClick={() => setShowImportModal(false)}>
+                Cancel
+              </Button>
+            </SpaceBetween>
+          </Box>
+        }
+      >
+        <SpaceBetween size="m">
+          <div>
+            Select a JSON file exported from this resume builder to import it.
+            The imported resume will be saved as a new resume.
+          </div>
+          <input
+            type="file"
+            accept=".json"
+            onChange={handleFileImport}
+            disabled={isImporting}
+            style={{ marginTop: "8px" }}
+          />
+          {isImporting && <div>Importing...</div>}
+        </SpaceBetween>
+      </Modal>
+    </>
   );
 };
 

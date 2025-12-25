@@ -11,7 +11,6 @@ import Form from "@cloudscape-design/components/form";
 import FormField from "@cloudscape-design/components/form-field";
 import Select from "@cloudscape-design/components/select";
 import Input from "@cloudscape-design/components/input";
-import { Grid } from "@cloudscape-design/components";
 
 interface SkillEditorProps {
   skill?: Skill;
@@ -81,73 +80,64 @@ const SkillEditor: React.FC<SkillEditorProps> = ({ skill, onClose }) => {
         </Box>
       }
     >
-      <Form>
-        <Grid
-          gridDefinition={[{ colspan: 6 }, { colspan: 6 }, { colspan: 12 }]}
+      <Form className="editor-form">
+        <FormField label="Skill Name" description="Name of your skill" stretch>
+          <Input
+            type="text"
+            id="name"
+            value={formData.name}
+            onChange={(e) => handleChange(e.detail.value, "name")}
+            placeholder="e.g., JavaScript, Python, Project Management"
+          />
+        </FormField>
+
+        <FormField
+          label="Category"
+          description="Choose how this skill should be displayed"
+          stretch
         >
+          <Select
+            options={[
+              {
+                label: "Technical Skill (with progress bar)",
+                value: "technical",
+              },
+              { label: "Additional Skill (bullet point)", value: "additional" },
+            ]}
+            selectedOption={{
+              label:
+                formData.category === "technical"
+                  ? "Technical Skill (with progress bar)"
+                  : "Additional Skill (bullet point)",
+              value: formData.category,
+            }}
+            onChange={(e) =>
+              handleChange(
+                e.detail.selectedOption.value || "technical",
+                "category"
+              )
+            }
+          />
+        </FormField>
+
+        {formData.category === "technical" && (
           <FormField
-            label="Skill Name"
-            description="Name of your skill"
+            label="Proficiency Level"
+            description="Rate your skill level"
             stretch
           >
-            <Input
-              type="text"
-              value={formData.name}
-              onChange={(e) => handleChange(e.detail.value, "name")}
-              placeholder="e.g., JavaScript, Python, Project Management"
-            />
+            <div className="skill-level-group">
+              <Input
+                type="number"
+                id="level"
+                value={formData.level.toString()}
+                onChange={(e) => handleChange(e.detail.value, "level")}
+                inputMode="numeric"
+              />
+              <span className="skill-level-value">{formData.level}%</span>
+            </div>
           </FormField>
-
-          <FormField
-            label="Category"
-            description="Choose how this skill should be displayed"
-            stretch
-          >
-            <Select
-              options={[
-                {
-                  label: "Technical Skill (with progress bar)",
-                  value: "technical",
-                },
-                {
-                  label: "Additional Skill (bullet point)",
-                  value: "additional",
-                },
-              ]}
-              selectedOption={{
-                label:
-                  formData.category === "technical"
-                    ? "Technical Skill (with progress bar)"
-                    : "Additional Skill (bullet point)",
-                value: formData.category,
-              }}
-              onChange={(e) =>
-                handleChange(
-                  e.detail.selectedOption.value || "technical",
-                  "category"
-                )
-              }
-            />
-          </FormField>
-
-          {formData.category === "technical" && (
-            <FormField
-              label="Proficiency Level"
-              description="Rate your skill level"
-              stretch
-            >
-              <div className="skill-level-group">
-                <Input
-                  type="number"
-                  value={formData.level.toString()}
-                  onChange={(e) => handleChange(e.detail.value, "level")}
-                  inputMode="numeric"
-                />
-                <span className="skill-level-value">{formData.level}%</span>
-              </div>
-            </FormField>
-          )}
-        </Grid>
+        )}
       </Form>
     </Modal>
   );
