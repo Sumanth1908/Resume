@@ -9,6 +9,7 @@ import {
   deleteSkill,
   deleteAward,
   reorderExperience,
+  reorderProject,
 } from "../store/resumeSlice";
 import Button from "@cloudscape-design/components/button";
 import { ResumeData } from "../types/resume";
@@ -51,7 +52,19 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
       id="resume-display"
       className={`resume-display ${isPreview ? "preview-mode" : ""}`}
     >
-      <div className="header">
+      <div className="header" style={{ position: 'relative' }}>
+        {!isPreview && (
+          <div style={{ position: 'absolute', right: 0, top: 0 }}>
+            <Button
+              variant="icon"
+              iconName="edit"
+              onClick={() =>
+                dispatch(setEditing({ isEditing: true, section: "contact" }))
+              }
+              ariaLabel="Edit contact info"
+            />
+          </div>
+        )}
         <h1>{contactInfo.name || "Your Name"}</h1>
         <div className="tagline">
           {contactInfo.tagline || "Your professional tagline goes here"}
@@ -63,6 +76,7 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
         </div>
       </div>
 
+      {/* TWO-COLUMN SECTION: Experience + Skills */}
       <div className="container">
         <div className="main-content">
           {/* EXPERIENCE SECTION */}
@@ -73,7 +87,12 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
                 <div key={experience.id} className="job">
                   <div className="job-header">
                     <div>
-                      <div className="company">{experience.company}</div>
+                      <div className="company">
+                        {experience.company}
+                        {experience.location && (
+                          <span className="location"> | {experience.location}</span>
+                        )}
+                      </div>
                       <div className="position">{experience.position}</div>
                     </div>
                     <div className="date">
@@ -145,121 +164,6 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
                           )
                         )}
                       </ul>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* EDUCATION SECTION */}
-          {education.length > 0 && (
-            <div className="section">
-              <h2 className="section-title">Education</h2>
-              {education.map((edu) => (
-                <div key={edu.id} className="education-item">
-                  <div className="education-header">
-                    <div>
-                      <div className="institution">
-                        {edu.institution}, {edu.location}
-                      </div>
-                      <div className="degree">{edu.degree}</div>
-                    </div>
-                    {!isPreview && (
-                      <div className="actions">
-                        <Button
-                          variant="icon"
-                          iconName="edit"
-                          onClick={() =>
-                            dispatch(
-                              setEditing({
-                                isEditing: true,
-                                section: "education",
-                                editingItemId: edu.id,
-                              })
-                            )
-                          }
-                          ariaLabel="Edit education"
-                        />
-                        <Button
-                          variant="icon"
-                          iconName="remove"
-                          onClick={() => dispatch(deleteEducation(edu.id))}
-                          ariaLabel="Delete education"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <div className="date">
-                    {edu.startDate} - {edu.endDate}
-                  </div>
-                  {edu.description && (
-                    <div className="description">{edu.description}</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* PROJECTS SECTION */}
-          {projects.length > 0 && (
-            <div className="section">
-              <h2 className="section-title">Projects</h2>
-              {projects.map((project) => (
-                <div key={project.id} className="project">
-                  <div className="project-header">
-                    <div>
-                      <div className="project-title">{project.title}</div>
-                      {project.subtitle && (
-                        <div className="project-subtitle">
-                          {project.subtitle}
-                        </div>
-                      )}
-                    </div>
-                    {!isPreview && (
-                      <div className="actions">
-                        <Button
-                          variant="icon"
-                          iconName="edit"
-                          onClick={() =>
-                            dispatch(
-                              setEditing({
-                                isEditing: true,
-                                section: "project",
-                                editingItemId: project.id,
-                              })
-                            )
-                          }
-                          ariaLabel="Edit project"
-                        />
-                        <Button
-                          variant="icon"
-                          iconName="remove"
-                          onClick={() => dispatch(deleteProject(project.id))}
-                          ariaLabel="Delete project"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  {project.description && (
-                    <div className="description">{project.description}</div>
-                  )}
-                  {project.responsibilities.length > 0 && (
-                    <div className="responsibilities">
-                      <strong>Role and Responsibilities:</strong>
-                      <ul>
-                        {project.responsibilities.map(
-                          (responsibility, index) => (
-                            <li key={index}>{responsibility}</li>
-                          )
-                        )}
-                      </ul>
-                    </div>
-                  )}
-                  {project.technologies.length > 0 && (
-                    <div className="technologies">
-                      <strong>Technologies:</strong>{" "}
-                      {project.technologies.join(", ")}
                     </div>
                   )}
                 </div>
@@ -353,7 +257,6 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
               )}
             </div>
           )}
-
           {/* AWARDS & CERTIFICATIONS */}
           {awards.length > 0 && (
             <div className="section">
@@ -409,6 +312,160 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
             </div>
           )}
         </div>
+      </div>
+
+      {/* FULL-WIDTH SECTIONS BELOW */}
+      <div className="full-width-content">
+        {/* EDUCATION SECTION */}
+        {education.length > 0 && (
+          <div className="section">
+            <h2 className="section-title">Education</h2>
+            {education.map((edu) => (
+              <div key={edu.id} className="education-item">
+                <div className="education-header">
+                  <div>
+                    <div className="institution">
+                      {edu.institution}
+                      {edu.location && (
+                        <span className="location"> | {edu.location}</span>
+                      )}
+                    </div>
+                    <div className="degree">{edu.degree}</div>
+                  </div>
+                  {!isPreview && (
+                    <div className="actions">
+                      <Button
+                        variant="icon"
+                        iconName="edit"
+                        onClick={() =>
+                          dispatch(
+                            setEditing({
+                              isEditing: true,
+                              section: "education",
+                              editingItemId: edu.id,
+                            })
+                          )
+                        }
+                        ariaLabel="Edit education"
+                      />
+                      <Button
+                        variant="icon"
+                        iconName="remove"
+                        onClick={() => dispatch(deleteEducation(edu.id))}
+                        ariaLabel="Delete education"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="date">
+                  {edu.startDate} - {edu.endDate}
+                </div>
+                {edu.description && (
+                  <div className="description">{edu.description}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* PROJECTS SECTION */}
+        {projects.length > 0 && (
+          <div className="section">
+            <h2 className="section-title">Projects</h2>
+            {projects.map((project, index) => (
+              <div key={project.id} className="project">
+                <div className="project-header">
+                  <div>
+                    <div className="project-title">
+                      {index + 1}. {project.title}
+                      {project.company && (
+                        <span className="company-tag"> @ {project.company}</span>
+                      )}
+                    </div>
+                    {project.subtitle && (
+                      <div className="project-subtitle">
+                        {project.subtitle}
+                      </div>
+                    )}
+                  </div>
+                  {!isPreview && (
+                    <div className="actions">
+                      <Button
+                        variant="icon"
+                        iconName="edit"
+                        onClick={() =>
+                          dispatch(
+                            setEditing({
+                              isEditing: true,
+                              section: "project",
+                              editingItemId: project.id,
+                            })
+                          )
+                        }
+                        ariaLabel="Edit project"
+                      />
+                      <Button
+                        variant="icon"
+                        iconName="angle-up"
+                        onClick={() =>
+                          dispatch(
+                            reorderProject({
+                              id: project.id,
+                              direction: "up",
+                            })
+                          )
+                        }
+                        ariaLabel="Move project up"
+                      />
+                      <Button
+                        variant="icon"
+                        iconName="angle-down"
+                        onClick={() =>
+                          dispatch(
+                            reorderProject({
+                              id: project.id,
+                              direction: "down",
+                            })
+                          )
+                        }
+                        ariaLabel="Move project down"
+                      />
+                      <Button
+                        variant="icon"
+                        iconName="remove"
+                        onClick={() => dispatch(deleteProject(project.id))}
+                        ariaLabel="Delete project"
+                      />
+                    </div>
+                  )}
+                </div>
+                {project.description && (
+                  <div className="description">{project.description}</div>
+                )}
+                {project.responsibilities.length > 0 && (
+                  <div className="responsibilities">
+                    <strong>Role and Responsibilities:</strong>
+                    <ul>
+                      {project.responsibilities.map(
+                        (responsibility, index) => (
+                          <li key={index}>{responsibility}</li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
+                {project.technologies.length > 0 && (
+                  <div className="technologies">
+                    <strong>Technologies:</strong>{" "}
+                    {project.technologies.join(", ")}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+
       </div>
     </div>
   );

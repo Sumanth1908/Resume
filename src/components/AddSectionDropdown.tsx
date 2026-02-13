@@ -11,6 +11,7 @@ const items = [
   { id: "project", text: "Project" },
   { id: "skill", text: "Skill" },
   { id: "education", text: "Education" },
+  { id: "award", text: "Awards & Certifications" },
 ];
 
 const AddSectionDropdown: React.FC<AddSectionDropdownProps> = ({

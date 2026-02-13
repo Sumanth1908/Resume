@@ -149,6 +149,26 @@ const resumeSlice = createSlice({
       }
     },
 
+    // Reorder project items by moving the item with the given id up or down
+    reorderProject: (
+      state,
+      action: PayloadAction<{ id: string; direction: "up" | "down" }>
+    ) => {
+      if (state.currentResume) {
+        const { id, direction } = action.payload;
+        const arr = state.currentResume.projects;
+        const idx = arr.findIndex((proj) => proj.id === id);
+        if (idx === -1) return;
+        const newIndex = direction === "up" ? idx - 1 : idx + 1;
+        if (newIndex < 0 || newIndex >= arr.length) return;
+        // swap
+        const temp = arr[newIndex];
+        arr[newIndex] = arr[idx];
+        arr[idx] = temp;
+        state.currentResume.updatedAt = new Date().toISOString();
+      }
+    },
+
     addSkill: (state, action: PayloadAction<Omit<Skill, "id">>) => {
       if (state.currentResume) {
         const newSkill: Skill = {
@@ -271,6 +291,7 @@ export const {
   addProject,
   updateProject,
   deleteProject,
+  reorderProject,
   addSkill,
   updateSkill,
   deleteSkill,

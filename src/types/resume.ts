@@ -10,6 +10,7 @@ export interface ContactInfo {
 export interface Experience {
   id: string;
   company: string;
+  location?: string; // Optional: company location (e.g., "Seattle, WA" or "Remote")
   position: string;
   startDate: string;
   endDate: string;
@@ -25,6 +26,7 @@ export interface Project {
   description: string;
   responsibilities: string[];
   technologies: string[];
+  company?: string; // Optional: tag project with a company from experience
 }
 
 export interface Skill {

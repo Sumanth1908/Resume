@@ -13,6 +13,7 @@ import ExperienceEditor from "./editors/ExperienceEditor";
 import ProjectEditor from "./editors/ProjectEditor";
 import SkillEditor from "./editors/SkillEditor";
 import EducationEditor from "./editors/EducationEditor";
+import AwardEditor from "./editors/AwardEditor";
 import "./ResumeBuilder.css";
 import Button from "@cloudscape-design/components/button";
 import SpaceBetween from "@cloudscape-design/components/space-between";
@@ -22,6 +23,7 @@ import AppLayout from "@cloudscape-design/components/app-layout";
 import AppHeader from "./AppHeader";
 import AddSectionDropdown from "./AddSectionDropdown";
 import Modal from "@cloudscape-design/components/modal";
+import Flashbar, { FlashbarProps } from "@cloudscape-design/components/flashbar";
 
 const ResumeBuilder: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +38,16 @@ const ResumeBuilder: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [notifications, setNotifications] = useState<FlashbarProps.MessageDefinition[]>([]);
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const timer = setTimeout(() => {
+        setNotifications([]);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notifications]);
 
   // Use editingSection from Redux instead of local state
   const activeEditor = editingSection;
@@ -56,6 +68,10 @@ const ResumeBuilder: React.FC = () => {
   const selectedSkill =
     editingItemId && currentResume
       ? currentResume.skills.find((s) => s.id === editingItemId)
+      : undefined;
+  const selectedAward =
+    editingItemId && currentResume
+      ? currentResume.awards.find((a) => a.id === editingItemId)
       : undefined;
 
   // Debug logging
@@ -112,9 +128,26 @@ const ResumeBuilder: React.FC = () => {
     try {
       await DatabaseService.saveResume(currentResume);
       console.log("Resume saved successfully");
-      navigate("/");
+      setNotifications([
+        {
+          type: "success",
+          content: "Resume saved successfully!",
+          dismissible: true,
+          onDismiss: () => setNotifications([]),
+          id: "save_success"
+        }
+      ]);
     } catch (error) {
       console.error("Failed to save resume:", error);
+      setNotifications([
+        {
+          type: "error",
+          content: "Failed to save resume. Please try again.",
+          dismissible: true,
+          onDismiss: () => setNotifications([]),
+          id: "save_error"
+        }
+      ]);
     } finally {
       setIsSaving(false);
     }
@@ -203,51 +236,65 @@ const ResumeBuilder: React.FC = () => {
     // Page actions
     ...(isPreviewMode
       ? [
-          {
-            type: "button" as const,
-            text: "Exit Preview",
-            onClick: togglePreview,
+        {
+          type: "button" as const,
+          text: "Exit Preview",
+          onClick: togglePreview,
+        },
+        {
+          type: "menu-dropdown" as const,
+          text: "Export",
+          items: exportDropdownItems,
+          onItemClick: (event: any) => {
+            const id = event.detail.id;
+            if (id === "pdf") handleExportPDF();
+            else if (id === "word") handleExportWord();
+            else if (id === "json") handleExportJSON();
           },
-          {
-            type: "menu-dropdown" as const,
-            text: "Export",
-            items: exportDropdownItems,
-            onItemClick: (event: any) => {
-              const id = event.detail.id;
-              if (id === "pdf") handleExportPDF();
-              else if (id === "word") handleExportWord();
-              else if (id === "json") handleExportJSON();
-            },
-          },
-        ]
+        },
+      ]
       : [
-          {
-            type: "button" as const,
-            text: isSaving ? "Saving..." : "Save",
-            disabled: isSaving,
-            onClick: handleSave,
+        {
+          type: "button" as const,
+          text: isSaving ? "Saving..." : "Save",
+          disabled: isSaving,
+          onClick: handleSave,
+        },
+        {
+          type: "button" as const,
+          text: "Preview",
+          onClick: togglePreview,
+        },
+        {
+          type: "menu-dropdown" as const,
+          text: "Export",
+          items: exportDropdownItems,
+          onItemClick: (event: any) => {
+            const id = event.detail.id;
+            if (id === "pdf") handleExportPDF();
+            else if (id === "word") handleExportWord();
+            else if (id === "json") handleExportJSON();
           },
-          {
-            type: "button" as const,
-            text: "Preview",
-            onClick: togglePreview,
-          },
-          {
-            type: "menu-dropdown" as const,
-            text: "Export",
-            items: exportDropdownItems,
-            onItemClick: (event: any) => {
-              const id = event.detail.id;
-              if (id === "pdf") handleExportPDF();
-              else if (id === "word") handleExportWord();
-              else if (id === "json") handleExportJSON();
-            },
-          },
-        ]),
+        },
+      ]),
   ];
 
   return (
     <>
+      {notifications.length > 0 && (
+        <div style={{
+          position: "fixed",
+          top: "20px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 5000,
+          width: "auto",
+          minWidth: "300px",
+          maxWidth: "90vw"
+        }}>
+          <Flashbar items={notifications} />
+        </div>
+      )}
       <AppLayout
         contentType="form"
         navigationHide
@@ -325,6 +372,9 @@ const ResumeBuilder: React.FC = () => {
                       education={selectedEducation}
                       onClose={closeEditor}
                     />
+                  )}
+                  {activeEditor === "award" && (
+                    <AwardEditor award={selectedAward} onClose={closeEditor} />
                   )}
                 </>
               )}

@@ -1,22 +1,65 @@
-/* Resume Display Styles - Based on original HTML template */
+/* Resume Display Styles */
+
+/* --- BASE STYLES (Edit Mode / Web View) --- */
 .resume-display {
   font-family: "Helvetica Neue", Arial, sans-serif;
-  line-height: 1.6;
   color: #333;
   background: white;
-  padding: 20px;
+
+  /* Web-friendly dimensions */
   max-width: 1000px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 20px auto;
+  padding: 30px;
+
+  /* Web typography */
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: justify;
+
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  box-sizing: border-box;
 }
 
-.resume-display.preview-mode {
-  box-shadow: none;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+/* Responsive layout adjustments for Edit Mode */
+@media (max-width: 768px) {
+  .resume-display {
+    padding: 15px;
+    margin: 10px;
+    width: auto;
+  }
 }
+
+/* --- PREVIEW MODE (WYSIWYG A4) --- */
+.resume-display.preview-mode {
+  /* A4 Dimensions */
+  width: 210mm;
+  min-height: 297mm;
+  /* Exact Print Padding */
+  padding: 10mm 12mm;
+
+  /* Center the "paper" */
+  margin: 40px auto;
+
+  /* Print-like Typography - INCREASED SIZE & SPACING */
+  font-size: 11pt;
+  /* Was 10pt */
+  line-height: 1.4;
+  /* Was 1.25 */
+
+  /* Reset web styles */
+  max-width: none;
+  border-radius: 0;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+
+  /* Visual Page Break Indicator */
+  background-image: linear-gradient(to bottom, transparent calc(297mm - 1px), #e74c3c calc(297mm - 1px), #e74c3c 297mm);
+  background-size: 100% 297mm;
+  background-repeat: repeat-y;
+}
+
+/* --- COMMON COMPONENT STYLES --- */
 
 .resume-placeholder {
   display: flex;
@@ -27,159 +70,303 @@
   border-radius: 8px;
   color: #666;
   font-size: 16px;
+  margin: 20px auto;
+  max-width: 800px;
 }
 
+/* HEADER */
 .header {
   border-bottom: 3px solid #2c3e50;
   padding-bottom: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
+}
+
+.resume-display.preview-mode .header {
+  padding-bottom: 6mm;
+  margin-bottom: 6mm;
 }
 
 .header h1 {
   font-size: 32px;
   color: #2c3e50;
   margin-bottom: 5px;
+  text-align: left;
+}
+
+.resume-display.preview-mode .header h1 {
+  font-size: 18pt;
+  /* Was 16pt */
+  margin-bottom: 2mm;
 }
 
 .header .tagline {
-  font-size: 14px;
+  font-size: 16px;
   color: #555;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   line-height: 1.5;
 }
 
-.actions {
-  display: flex;
-  gap: 8px;
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
-}
-
-.job:hover .actions,
-.education-item:hover .actions,
-.project:hover .actions {
-  opacity: 1;
-}
-
-.job-header,
-.education-header,
-.project-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 10px;
+.resume-display.preview-mode .header .tagline {
+  font-size: 12pt;
+  /* Was 11pt */
+  margin-bottom: 8px;
 }
 
 .contact-info {
-  font-size: 12px;
+  font-size: 14px;
   color: #666;
+}
+
+.resume-display.preview-mode .contact-info {
+  font-size: 10pt;
+  /* Was 9pt */
 }
 
 .contact-info span {
   margin-right: 20px;
+  display: inline-block;
 }
 
+/* LAYOUT GRID */
 .container {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 30px;
 }
 
+.resume-display.preview-mode .container {
+  grid-template-columns: 2.2fr 1fr;
+  gap: 8mm;
+}
+
 .main-content {
-  padding-right: 20px;
+  padding-right: 0;
+  padding-top: 20px;
+  /* Align with sidebar padding for vertical symmetry */
+}
+
+.resume-display.preview-mode .main-content {
+  padding-top: 10px;
+  /* Align with preview-mode sidebar padding */
 }
 
 .sidebar {
   background: #f8f9fa;
-  padding: 0px 20px;
+  padding: 20px;
   border-radius: 5px;
+  height: fit-content;
 }
 
+.resume-display.preview-mode .sidebar {
+  padding: 10px;
+}
+
+.full-width-content {
+  width: 100%;
+}
+
+/* SECTIONS */
 .section {
   margin-bottom: 30px;
 }
 
-.section-title {
-  font-size: 18px;
-  color: #2c3e50;
-  text-transform: uppercase;
-  border-bottom: 2px solid #3498db;
-  padding-bottom: 5px;
-  margin-bottom: 15px;
-  font-weight: bold;
+.resume-display.preview-mode .section {
+  margin-bottom: 6mm;
 }
 
+/* SECTION TITLES */
+.section-title {
+  font-size: 14pt;
+  font-weight: 700;
+  color: #2c3e50;
+  text-transform: uppercase;
+  border-bottom: 2px solid #2c3e50;
+  padding-bottom: 5px;
+  margin-bottom: 12px;
+  margin-top: 0;
+
+  /* Prevent Orphan Headers: Keep title with following content */
+  page-break-after: avoid;
+  break-after: avoid;
+  text-align: left;
+  /* Ensure headings are not justified */
+}
+
+.resume-display.preview-mode .section-title {
+  font-size: 12pt;
+  /* Was 11pt */
+  margin-bottom: 15px;
+  /* Increased from 8px */
+
+  /* Ensure print respects this too */
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+/* ITEMS */
 .job,
 .education-item,
-.project {
+.project,
+.award-item {
   margin-bottom: 20px;
 }
 
+.resume-display.preview-mode .job,
+.resume-display.preview-mode .education-item,
+.resume-display.preview-mode .project,
+.resume-display.preview-mode .award-item {
+  margin-bottom: 5mm;
+  /* Was 3mm */
+}
+
 .job-header,
-.education-header {
+.education-header,
+.project-header,
+.award-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 5px;
 }
 
+.resume-display.preview-mode .job-header,
+.resume-display.preview-mode .project-header {
+  margin-bottom: 2px;
+}
+
 .company,
-.institution {
+.institution,
+.project-title,
+.award-title {
   font-weight: bold;
-  font-size: 15px;
+  font-size: 16px;
   color: #2c3e50;
+}
+
+.resume-display.preview-mode .company,
+.resume-display.preview-mode .institution,
+.resume-display.preview-mode .project-title {
+  font-size: 12pt;
+  /* Was 11pt */
+}
+
+.project-subtitle {
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  color: #64748b;
+  /* Modern slate grey */
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+
+.resume-display.preview-mode .project-subtitle {
+  font-size: 10pt;
+  margin-bottom: 2mm;
+}
+
+.company-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  font-size: 12px;
+  font-weight: normal;
+  border-radius: 4px;
+}
+
+.resume-display.preview-mode .company-tag {
+  font-size: 9pt;
+  /* Was 8pt */
+  padding: 1px 4px;
+}
+
+.location {
+  font-weight: normal;
+  color: #666;
+  font-size: 14px;
+}
+
+.resume-display.preview-mode .location {
+  font-size: 10pt;
+  /* Was 9pt */
 }
 
 .position,
 .degree {
   font-style: italic;
   color: #555;
-  font-size: 14px;
+  font-size: 15px;
 }
 
-.date {
-  font-size: 12px;
+.resume-display.preview-mode .position,
+.resume-display.preview-mode .degree {
+  font-size: 11pt;
+  /* Was 10pt */
+}
+
+.date,
+.award-date,
+.award-issuer {
+  font-size: 13px;
   color: #777;
   font-weight: normal;
 }
 
-.description {
-  font-size: 13px;
+.resume-display.preview-mode .date,
+.resume-display.preview-mode .award-date,
+.resume-display.preview-mode .award-issuer {
+  font-size: 9pt;
+  /* Was 8pt */
+}
+
+.description,
+.responsibilities,
+.technologies,
+.award-description,
+.additional-skills {
+  font-size: 14px;
   color: #555;
   margin-top: 8px;
   line-height: 1.5;
 }
 
-.responsibilities {
-  margin-top: 10px;
+.resume-display.preview-mode .description,
+.resume-display.preview-mode .responsibilities,
+.resume-display.preview-mode .technologies,
+.resume-display.preview-mode .additional-skills,
+.resume-display.preview-mode .award-description {
+  font-size: 10.5pt;
+  /* Was 9pt */
+  margin-top: 4px;
+  line-height: 1.4;
 }
 
-.responsibilities li {
-  font-size: 13px;
-  color: #555;
+.responsibilities ul,
+.additional-skills ul,
+.awards ul {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.resume-display.preview-mode .responsibilities ul,
+.resume-display.preview-mode .additional-skills ul,
+.resume-display.preview-mode .awards ul {
+  padding-left: 15px;
+  margin: 4px 0;
+}
+
+.responsibilities li,
+.additional-skill-item li {
   margin-bottom: 5px;
 }
 
-.project-title {
-  font-weight: bold;
-  color: #2c3e50;
-  font-size: 14px;
-  margin-bottom: 5px;
+.resume-display.preview-mode .responsibilities li {
+  margin-bottom: 2px;
 }
 
-.project-subtitle {
-  font-style: italic;
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.technologies {
-  font-size: 12px;
-  color: #666;
-  margin-top: 8px;
-}
-
+/* SKILLS */
 .skills-chart {
   margin-bottom: 20px;
 }
@@ -188,24 +375,8 @@
   margin-bottom: 12px;
 }
 
-.skill-name {
-  font-size: 13px;
-  color: #333;
-  margin-bottom: 3px;
-}
-
-.skill-bar {
-  height: 8px;
-  background: #e0e0e0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.skill-level {
-  height: 100%;
-  background: linear-gradient(90deg, #3498db, #2980b9);
-  border-radius: 4px;
-  transition: width 0.3s ease;
+.resume-display.preview-mode .skill-item {
+  margin-bottom: 8px;
 }
 
 .skill-header {
@@ -215,186 +386,238 @@
   margin-bottom: 5px;
 }
 
-.skill-item {
-  margin-bottom: 15px;
+.skill-name {
+  font-size: 14px;
+  color: #333;
 }
 
-.skill-item .actions,
-.additional-skill-item .actions {
-  display: flex;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+.resume-display.preview-mode .skill-name {
+  font-size: 10.5pt;
+  /* Was 10pt */
+  margin-bottom: 2px;
 }
 
-.skill-item:hover .actions,
-.additional-skill-item:hover .actions {
-  opacity: 1;
+.skill-bar {
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-.additional-skills ul,
-.awards ul {
-  font-size: 13px;
-  color: #555;
-  list-style: none;
-  padding: 0;
+.resume-display.preview-mode .skill-bar {
+  height: 4px;
+  border-radius: 2px;
 }
 
-.award-item {
-  margin-bottom: 16px;
-}
-
-.award-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.award-content {
-  padding: 4px 0;
-}
-
-.award-issuer {
-  font-size: 13px;
-  color: #666;
-  margin-top: 2px;
-}
-
-.award-date {
-  font-size: 12px;
-  color: #888;
-  margin-top: 2px;
-}
-
-.award-description {
-  margin-top: 4px;
-  font-size: 13px;
-  color: #555;
-}
-
-.award-item .actions {
-  display: flex;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.award-item:hover .actions {
-  opacity: 1;
+.skill-level {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db, #2980b9);
+  transition: width 0.3s ease;
 }
 
 .additional-skill-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2px;
-  padding: 2px 0;
+  font-size: 14px;
 }
 
-/* Print styles */
+.resume-display.preview-mode .additional-skill-item {
+  font-size: 10pt;
+  /* Was 9pt */
+  margin-bottom: 2px;
+}
+
+.additional-skills ul,
+.awards ul {
+  list-style: none;
+  padding: 0;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.resume-display:not(.preview-mode) .job:hover .actions,
+.resume-display:not(.preview-mode) .education-item:hover .actions,
+.resume-display:not(.preview-mode) .project:hover .actions,
+.resume-display:not(.preview-mode) .skill-item:hover .actions,
+.resume-display:not(.preview-mode) .additional-skill-item:hover .actions,
+.resume-display:not(.preview-mode) .award-item:hover .actions {
+  opacity: 1;
+}
+
+.resume-display.preview-mode .actions {
+  display: none !important;
+}
+
+/* --- PRINT MEDIA QUERY (Mirrors Preview Mode + Isolation) --- */
 @media print {
-  .resume-display {
-    margin: 0;
-    padding: 15mm;
-    box-shadow: none;
-    border-radius: 0;
-    max-width: 210mm; /* A4 width */
-    min-height: 297mm; /* A4 height */
+
+  /* Hide everything except the print container */
+  body.printing-mode>*:not(#print-container) {
+    display: none !important;
+  }
+
+  /* Ensure print container visible */
+  #print-container {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Reset Page Margins & Global Styles */
+  @page {
+    size: auto;
+    margin: 5mm;
+    /* Default small margin if browser supports */
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Resume specific print styles */
+  .resume-display {
+    /* Use 100% to fill the print area (paper minus margins) */
+    width: 100%;
+    min-height: 100%;
+    /* Let it grow */
+    margin: 0;
+
+    /* Minimal safety padding (0.2in) to avoid edge-touching if user sets margins to None */
+    /* If user uses Default Margins, this adds slightly to it, which is fine */
+    padding: 5mm;
+
+    box-shadow: none !important;
+    max-width: none;
+
+    /* Remove Preview Artifacts (Red Lines) */
+    background-image: none !important;
+
+    /* Ensure colors print */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+
     font-size: 11pt;
-    line-height: 1.3;
-    background: none;
+    line-height: 1.4;
+    box-sizing: border-box;
   }
 
-  .header {
-    padding-bottom: 10mm;
-    margin-bottom: 10mm;
-  }
+  /* UPDATED */
 
-  .header h1 {
-    font-size: 18pt;
-  }
 
-  .section {
-    margin-bottom: 8mm;
-    page-break-inside: avoid;
-  }
-
-  .container {
-    gap: 10mm;
-  }
-
-  .experience-item,
-  .project-item,
-  .education-item,
-  .award-item {
-    page-break-inside: avoid;
-    margin-bottom: 5mm;
-  }
-
-  .responsibilities ul,
-  .technologies,
-  .additional-skills ul,
-  .awards ul {
-    margin-bottom: 3mm;
-  }
-
-  .skill-bar {
-    height: 4px;
-  }
-
-  /* Hide action buttons in PDF */
   .actions {
     display: none !important;
   }
 
-  /* Remove background colors and shadows */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* Ensure white background */
   body {
     background: white;
   }
 
-  /* Reset font sizes for better fit */
+  /* Duplicate preview-mode typography for print context */
+  .header h1 {
+    font-size: 18pt;
+    margin-bottom: 2mm;
+  }
+
+  /* UPDATED */
+  .header .tagline {
+    font-size: 12pt;
+    margin-bottom: 8mm;
+  }
+
+  /* UPDATED */
+  .section-title {
+    font-size: 14pt;
+    margin-bottom: 4mm;
+    padding-bottom: 2mm;
+    page-break-after: avoid;
+  }
+
+  /* UPDATED */
+
   .company,
-  .project-title,
-  .institution {
+  .institution,
+  .project-title {
     font-size: 12pt;
   }
 
+  /* UPDATED */
   .position,
   .degree {
     font-size: 11pt;
   }
 
-  .description,
-  .responsibilities,
-  .technologies,
-  .additional-skills,
-  .award-description {
+  /* UPDATED */
+  .location {
     font-size: 10pt;
   }
 
-  .date,
-  .award-date,
-  .award-issuer {
+  /* UPDATED */
+  .description,
+  .responsibilities,
+  .technologies {
+    font-size: 10.5pt;
+  }
+
+  /* UPDATED */
+  .date {
     font-size: 9pt;
+  }
+
+  /* UPDATED */
+
+  .container {
+    grid-template-columns: 2.2fr 1fr;
+    gap: 8mm;
+  }
+
+  .sidebar {
+    padding: 0 10px;
+  }
+
+  /* Page Breaks */
+  /* Page Breaks: Allow items to split to minimize whitespace */
+  .job,
+  .project,
+  .education-item,
+  .award-item {
+    page-break-inside: auto;
+    margin-bottom: 5mm;
+  }
+
+  /* Protect specific elements from breaking awkwardly */
+  .job-header,
+  .project-header,
+  .education-header,
+  .award-header,
+  .responsibilities li {
+    page-break-inside: avoid;
+  }
+
+  /* Allow description/responsibilities container to break if needed */
+  .description,
+  .responsibilities {
+    page-break-inside: auto;
   }
 }
 
-/* Responsive design */
+/* --- MOBILE RESPONSIVE (Edit Mode) --- */
 @media (max-width: 768px) {
   .container {
     grid-template-columns: 1fr;
     gap: 20px;
-  }
-
-  .main-content {
-    padding-right: 0;
   }
 
   .header h1 {
@@ -405,5 +628,13 @@
     display: block;
     margin-bottom: 5px;
     margin-right: 0;
+  }
+
+  .sidebar {
+    padding: 15px;
+  }
+
+  .actions {
+    opacity: 1;
   }
 }

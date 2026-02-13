@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addProject, updateProject } from "../../store/resumeSlice";
 import { Project } from "../../types/resume";
+import { RootState } from "../../store/store";
 import "./Editor.css";
 import Modal from "@cloudscape-design/components/modal";
 import Box from "@cloudscape-design/components/box";
@@ -11,6 +12,7 @@ import Form from "@cloudscape-design/components/form";
 import FormField from "@cloudscape-design/components/form-field";
 import Input from "@cloudscape-design/components/input";
 import Textarea from "@cloudscape-design/components/textarea";
+import Select from "@cloudscape-design/components/select";
 
 interface ProjectEditorProps {
   project?: Project;
@@ -21,13 +23,25 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
   const dispatch = useDispatch();
   const isEditing = !!project;
 
+  // Get experiences from Redux store to populate company dropdown
+  const experiences = useSelector(
+    (state: RootState) => state.resume.currentResume?.experiences || []
+  );
+
   const [formData, setFormData] = useState<Omit<Project, "id">>({
     title: "",
     subtitle: "",
     description: "",
     responsibilities: [""],
     technologies: [""],
+    company: undefined,
   });
+
+  // Selected company option for the Select component
+  const [selectedCompany, setSelectedCompany] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
 
   useEffect(() => {
     if (project) {
@@ -39,7 +53,15 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
           project.responsibilities.length > 0 ? project.responsibilities : [""],
         technologies:
           project.technologies.length > 0 ? project.technologies : [""],
+        company: project.company,
       });
+
+      // Set selected company option
+      if (project.company) {
+        setSelectedCompany({ label: project.company, value: project.company });
+      } else {
+        setSelectedCompany({ label: "None", value: "" });
+      }
     }
   }, [project]);
 
@@ -146,6 +168,35 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
           />
         </FormField>
 
+
+        <FormField
+          label="Company"
+          description="Associate this project with a company from your experience (optional)"
+          stretch
+        >
+          <Select
+            selectedOption={selectedCompany}
+            onChange={({ detail }) => {
+              const option = detail.selectedOption;
+              if (option && option.label && option.value !== undefined) {
+                setSelectedCompany({ label: option.label, value: option.value });
+                setFormData((prev) => ({
+                  ...prev,
+                  company: option.value || undefined,
+                }));
+              }
+            }}
+            options={[
+              { label: "None", value: "" },
+              ...experiences.map((exp) => ({
+                label: exp.company,
+                value: exp.company,
+              })),
+            ]}
+            placeholder="Select a company (optional)"
+          />
+        </FormField>
+
         <FormField
           label="Project Description"
           description="Detailed description of the project"
@@ -168,19 +219,22 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
           <div className="dynamic-list">
             {formData.technologies.map((tech, index) => (
               <div key={index} className="list-item">
-                <Input
-                  type="text"
-                  value={tech}
-                  onChange={(e) =>
-                    handleArrayChange("technologies", index, e.detail.value)
-                  }
-                  placeholder="e.g., React, Node.js, MongoDB"
-                />
+                <div className="list-item-content">
+                  <Input
+                    type="text"
+                    value={tech}
+                    onChange={(e) =>
+                      handleArrayChange("technologies", index, e.detail.value)
+                    }
+                    placeholder="e.g., React, Node.js, MongoDB"
+                  />
+                </div>
                 {formData.technologies.length > 1 && (
                   <Button
                     onClick={() => removeArrayItem("technologies", index)}
                     variant="icon"
-                    iconName="close"
+                    iconName="remove"
+                    ariaLabel="Remove technology"
                   />
                 )}
               </div>
@@ -203,19 +257,22 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
           <div className="dynamic-list">
             {formData.responsibilities.map((responsibility, index) => (
               <div key={index} className="list-item">
-                <Input
-                  type="text"
-                  value={responsibility}
-                  onChange={(e) =>
-                    handleArrayChange("responsibilities", index, e.detail.value)
-                  }
-                  placeholder="Describe your role or achievement in this project"
-                />
+                <div className="list-item-content">
+                  <Textarea
+                    value={responsibility}
+                    onChange={(e) =>
+                      handleArrayChange("responsibilities", index, e.detail.value)
+                    }
+                    rows={3}
+                    placeholder="Describe your role or achievement in this project"
+                  />
+                </div>
                 {formData.responsibilities.length > 1 && (
                   <Button
                     onClick={() => removeArrayItem("responsibilities", index)}
                     variant="icon"
-                    iconName="close"
+                    iconName="remove"
+                    ariaLabel="Remove responsibility"
                   />
                 )}
               </div>

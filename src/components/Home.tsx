@@ -16,6 +16,7 @@ import Modal from "@cloudscape-design/components/modal";
 import ButtonDropdown from "@cloudscape-design/components/button-dropdown";
 import AppHeader from "./AppHeader";
 import { JSONExportService } from "../services/jsonExport";
+import Flashbar, { FlashbarProps } from "@cloudscape-design/components/flashbar";
 
 const Home: React.FC = () => {
   const [resumes, setResumes] = useState<ResumeData[]>([]);
@@ -25,7 +26,17 @@ const Home: React.FC = () => {
   const [resumeToDelete, setResumeToDelete] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [notifications, setNotifications] = useState<FlashbarProps.MessageDefinition[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const timer = setTimeout(() => {
+        setNotifications([]);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notifications]);
 
   useEffect(() => {
     loadResumes();
@@ -75,8 +86,22 @@ const Home: React.FC = () => {
         loadResumes();
         setShowDeleteModal(false);
         setResumeToDelete(null);
+        setNotifications([{
+          type: "success",
+          content: "Resume deleted successfully",
+          dismissible: true,
+          onDismiss: () => setNotifications([]),
+          id: "delete_success"
+        }]);
       } catch (error) {
         console.error("Failed to delete resume:", error);
+        setNotifications([{
+          type: "error",
+          content: "Failed to delete resume",
+          dismissible: true,
+          onDismiss: () => setNotifications([]),
+          id: "delete_error"
+        }]);
       }
     }
   };
@@ -100,15 +125,24 @@ const Home: React.FC = () => {
     try {
       const importedResume = await JSONExportService.importFromJSON(file);
       await DatabaseService.saveResume(importedResume);
-      navigate(`/resume/${importedResume.id}`);
+      setNotifications([{
+        type: "success",
+        content: "Resume imported successfully",
+        dismissible: true,
+        onDismiss: () => setNotifications([]),
+        id: "import_success"
+      }]);
+      setTimeout(() => navigate(`/resume/${importedResume.id}`), 1000);
       setShowImportModal(false);
     } catch (error) {
       console.error("Failed to import JSON:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Failed to import JSON. Please try again."
-      );
+      setNotifications([{
+        type: "error",
+        content: error instanceof Error ? error.message : "Failed to import JSON",
+        dismissible: true,
+        onDismiss: () => setNotifications([]),
+        id: "import_error"
+      }]);
     } finally {
       setIsImporting(false);
     }
@@ -129,6 +163,20 @@ const Home: React.FC = () => {
 
   return (
     <>
+      {notifications.length > 0 && (
+        <div style={{
+          position: "fixed",
+          top: "20px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 5000,
+          width: "auto",
+          minWidth: "300px",
+          maxWidth: "90vw"
+        }}>
+          <Flashbar items={notifications} />
+        </div>
+      )}
       <AppLayout
         toolsHide
         navigationHide

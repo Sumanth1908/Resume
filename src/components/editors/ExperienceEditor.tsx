@@ -58,6 +58,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
 
   const [formData, setFormData] = useState<Omit<Experience, "id">>({
     company: "",
+    location: "",
     position: "",
     startDate: "",
     endDate: "",
@@ -70,6 +71,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     if (experience) {
       setFormData({
         company: experience.company,
+        location: experience.location || "",
         position: experience.position,
         startDate: dateToPickerFormat(experience.startDate),
         endDate: dateToPickerFormat(experience.endDate),
@@ -175,14 +177,31 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
               type="text"
               value={formData.company}
               onChange={(e) => handleChange(e.detail.value, "company")}
+              placeholder="e.g., Amazon, Microsoft"
             />
           </FormField>
 
+          <FormField
+            label="Location"
+            description="City, State or Remote (optional)"
+            stretch
+          >
+            <Input
+              type="text"
+              value={formData.location || ""}
+              onChange={(e) => handleChange(e.detail.value, "location")}
+              placeholder="e.g., Seattle, WA or Remote"
+            />
+          </FormField>
+        </div>
+
+        <div className="form-row">
           <FormField label="Position" description="Your job title" stretch>
             <Input
               type="text"
               value={formData.position}
               onChange={(e) => handleChange(e.detail.value, "position")}
+              placeholder="e.g., Software Engineer"
             />
           </FormField>
         </div>
@@ -234,19 +253,23 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         >
           <div className="dynamic-list">
             {formData.responsibilities.map((responsibility, index) => (
-              <div key={index}>
-                <Input
-                  value={responsibility}
-                  onChange={(e) =>
-                    handleResponsibilityChange(index, e.detail.value)
-                  }
-                  placeholder="Describe a key responsibility or achievement"
-                />
+              <div key={index} className="list-item">
+                <div className="list-item-content">
+                  <Textarea
+                    value={responsibility}
+                    onChange={(e) =>
+                      handleResponsibilityChange(index, e.detail.value)
+                    }
+                    rows={3}
+                    placeholder="Describe a key responsibility or achievement"
+                  />
+                </div>
                 {formData.responsibilities.length > 1 && (
                   <Button
                     onClick={() => removeResponsibility(index)}
                     variant="icon"
-                    iconName="close"
+                    iconName="remove"
+                    ariaLabel="Remove responsibility"
                   />
                 )}
               </div>

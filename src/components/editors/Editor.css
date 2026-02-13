@@ -100,6 +100,10 @@
   color: #94a3b8;
 }
 
+textarea {
+  text-align: justify;
+}
+
 .form-group textarea {
   resize: vertical;
   min-height: 120px;
@@ -202,9 +206,29 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.02);
 }
 
-.list-item input {
+.list-item-content {
   flex: 1;
+  min-width: 0;
+  /* Critical for flex child truncation/containment */
+}
+
+.list-item-content input,
+.list-item-content textarea {
+  width: 100%;
   margin-bottom: 0;
+  max-width: 100%;
+  /* Prevent breaking modal on resize */
+  resize: vertical;
+  /* Allow only vertical resizing */
+  box-sizing: border-box;
+  display: block;
+  /* Ensure it behaves predictably in flex */
+  text-align: justify;
+}
+
+/* Override Cloudscape's wrapper if present */
+.list-item-content>div {
+  width: 100%;
 }
 
 .remove-btn {
