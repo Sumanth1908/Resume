@@ -12,7 +12,8 @@
 /* --- BASE STYLES (Edit Mode / Web View) --- */
 .resume-display {
   font-family: var(--resume-font-family);
-  color: #333;
+  color: #111;
+  /* Deepened for higher contrast */
   background: white;
 
   /* Web-friendly dimensions */
@@ -186,7 +187,8 @@
 
 .header .tagline {
   font-size: 16px;
-  color: #555;
+  color: #2d2d2d;
+  /* Darkened from #555 */
   margin-bottom: 10px;
   line-height: 1.5;
 }
@@ -199,7 +201,8 @@
 
 .contact-info {
   font-size: 14px;
-  color: #666;
+  color: #222;
+  /* Maximum contrast for primary metadata */
 }
 
 .resume-display.preview-mode .contact-info {
@@ -327,7 +330,8 @@
 .award-title {
   font-weight: bold;
   font-size: 16px;
-  color: #2c3e50;
+  color: #1a2a3a;
+  /* Deepened slate for more impact */
 }
 
 .resume-display.preview-mode .company,
@@ -341,8 +345,8 @@
   font-style: italic;
   font-weight: 400;
   font-size: 14px;
-  color: #64748b;
-  /* Modern slate grey */
+  color: #334155;
+  /* Deep slate for high definition */
   margin-top: 2px;
   margin-bottom: 4px;
 }
@@ -371,7 +375,8 @@
 
 .location {
   font-weight: normal;
-  color: #666;
+  color: #2d2d2d;
+  /* Professional dark grey for secondary info */
   font-size: 14px;
 }
 
@@ -383,7 +388,8 @@
 .position,
 .degree {
   font-style: italic;
-  color: #555;
+  color: #2d2d2d;
+  /* Darkened from #555 */
   font-size: 15px;
 }
 
@@ -397,7 +403,8 @@
 .award-date,
 .award-issuer {
   font-size: 13px;
-  color: #777;
+  color: #333;
+  /* High-definition metadata */
   font-weight: normal;
 }
 
@@ -414,7 +421,8 @@
 .award-description,
 .additional-skills {
   font-size: 14px;
-  color: #555;
+  color: #1a1a1a;
+  /* Ink-black for crisp readability */
   margin-top: 8px;
   line-height: 1.5;
 }
@@ -429,10 +437,12 @@
 .tech-tag {
   font-size: 12px;
   padding: 2px 8px;
-  background-color: rgba(var(--resume-theme-color-rgb, 9, 114, 211), 0.08);
+  background-color: rgba(var(--resume-theme-color-rgb, 9, 114, 211), 0.12);
+  /* Slightly higher visibility */
   color: var(--resume-theme-color);
   border-radius: 4px;
-  font-weight: 500;
+  font-weight: 600;
+  /* Bolder weight for high-contrast tags */
 }
 
 .resume-display.preview-mode .tech-tag {
@@ -499,7 +509,8 @@
 
 .skill-name {
   font-size: 14px;
-  color: #333;
+  color: #111;
+  /* Matched base black */
 }
 
 .resume-display.preview-mode .skill-name {
