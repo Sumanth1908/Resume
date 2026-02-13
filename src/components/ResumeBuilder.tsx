@@ -43,6 +43,7 @@ const ResumeBuilder: React.FC = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [notifications, setNotifications] = useState<FlashbarProps.MessageDefinition[]>([]);
+  const [lastPersistedAt, setLastPersistedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     if (notifications.length > 0) {
@@ -78,8 +79,6 @@ const ResumeBuilder: React.FC = () => {
       ? currentResume.awards.find((a) => a.id === editingItemId)
       : undefined;
 
-  // Debug logging
-  console.log("Redux State:", { isEditing, editingSection, activeEditor });
 
   useEffect(() => {
     const loadResume = async () => {
@@ -96,6 +95,7 @@ const ResumeBuilder: React.FC = () => {
           const resume = await DatabaseService.getResume(id);
           if (resume) {
             dispatch(setResume(resume));
+            setLastPersistedAt(new Date(resume.updatedAt));
           } else {
             console.error("Resume not found");
             navigate("/");
@@ -116,46 +116,73 @@ const ResumeBuilder: React.FC = () => {
   }, [dispatch, id, navigate]);
 
   const closeEditor = () => {
-    console.log("Closing editor");
     dispatch(setEditing({ isEditing: false, section: "" }));
   };
 
   const openEditor = (section: string) => {
-    console.log("Opening editor for section:", section);
     dispatch(setEditing({ isEditing: true, section }));
   };
 
-  const handleSave = async () => {
-    if (!currentResume) return;
+  const resumeRef = React.useRef(currentResume);
+  useEffect(() => {
+    resumeRef.current = currentResume;
+  }, [currentResume]);
 
-    setIsSaving(true);
+  const handleSave = async (isAutoSave = false) => {
+    const resumeToSave = resumeRef.current;
+    if (!resumeToSave) return;
+
+    if (!isAutoSave) setIsSaving(true);
     try {
-      await DatabaseService.saveResume(currentResume);
-      console.log("Resume saved successfully");
-      setNotifications([
-        {
-          type: "success",
-          content: "Resume saved successfully!",
-          dismissible: true,
-          onDismiss: () => setNotifications([]),
-          id: "save_success"
-        }
-      ]);
+      await DatabaseService.saveResume(resumeToSave);
+      setLastPersistedAt(new Date());
+
+      // Only show notifications for manual saves
+      if (!isAutoSave) {
+        setNotifications([
+          {
+            type: "success",
+            content: "Resume saved successfully!",
+            dismissible: true,
+            onDismiss: () => setNotifications([]),
+            id: "save_success"
+          }
+        ]);
+      }
     } catch (error) {
       console.error("Failed to save resume:", error);
-      setNotifications([
-        {
-          type: "error",
-          content: "Failed to save resume. Please try again.",
-          dismissible: true,
-          onDismiss: () => setNotifications([]),
-          id: "save_error"
-        }
-      ]);
+      if (!isAutoSave) {
+        setNotifications([
+          {
+            type: "error",
+            content: "Failed to save resume. Please try again.",
+            dismissible: true,
+            onDismiss: () => setNotifications([]),
+            id: "save_error"
+          }
+        ]);
+      }
     } finally {
-      setIsSaving(false);
+      if (!isAutoSave) setIsSaving(false);
     }
   };
+
+  // Auto-save every 30 seconds
+  useEffect(() => {
+    if (isPreviewMode) return;
+
+    const interval = setInterval(() => {
+      handleSave(true);
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [isPreviewMode]); // Only reset if isPreviewMode changes
+
+  const lastSavedTime = lastPersistedAt
+    ? lastPersistedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : currentResume?.updatedAt
+      ? new Date(currentResume.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      : null;
 
   const handleExportPDF = async () => {
     const originalPreviewMode = isPreviewMode;
@@ -258,6 +285,12 @@ const ResumeBuilder: React.FC = () => {
         },
       ]
       : [
+        ...(lastSavedTime ? [{
+          type: "button" as const,
+          variant: "link" as const,
+          text: `Last saved: ${lastSavedTime}`,
+          disabled: true
+        }] : []),
         {
           type: "button" as const,
           iconName: "settings",
@@ -268,7 +301,7 @@ const ResumeBuilder: React.FC = () => {
           type: "button" as const,
           text: isSaving ? "Saving..." : "Save",
           disabled: isSaving,
-          onClick: handleSave,
+          onClick: () => handleSave(false),
         },
         {
           type: "button" as const,
