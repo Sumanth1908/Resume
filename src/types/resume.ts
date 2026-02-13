@@ -58,6 +58,7 @@ export interface ResumeSettings {
   template: "modern" | "classic" | "executive";
   themeColor: string;
   fontFamily: string;
+  textAlignment: "left" | "justify";
   sectionVisibility: {
     experience: boolean;
     projects: boolean;

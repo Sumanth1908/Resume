@@ -22,6 +22,7 @@ const defaultSettings: ResumeSettings = {
   template: "modern",
   themeColor: "#0972d3",
   fontFamily: "Inter, sans-serif",
+  textAlignment: "left",
   sectionVisibility: {
     experience: true,
     projects: true,

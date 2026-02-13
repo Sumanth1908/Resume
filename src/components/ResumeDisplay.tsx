@@ -87,6 +87,8 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
           "--resume-theme-color": settings?.themeColor || "#0972d3",
           "--resume-theme-color-rgb": hexToRgb(settings?.themeColor || "#0972d3"),
           "--resume-font-family": settings?.fontFamily || "Inter, sans-serif",
+          "--resume-text-alignment": settings?.textAlignment || "left",
+          "--resume-heading-alignment": settings?.textAlignment === "justify" ? "left" : (settings?.textAlignment || "left"),
         } as React.CSSProperties
       }
     >
@@ -289,11 +291,12 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
                               </div>
                             )}
                           </div>
-                          {award.issuer && (
-                            <div className="award-issuer">{award.issuer}</div>
-                          )}
-                          {award.date && (
-                            <div className="award-date">{award.date}</div>
+                          {(award.issuer || award.date) && (
+                            <div className="award-meta">
+                              {award.issuer && <span className="award-issuer">{award.issuer}</span>}
+                              {award.issuer && award.date && <span className="separator"> • </span>}
+                              {award.date && <span className="award-date">{award.date}</span>}
+                            </div>
                           )}
                           {award.description && (
                             <div className="award-description">
@@ -547,8 +550,8 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
                 )}
                 {project.technologies.length > 0 && (
                   <div className="technologies">
-                    <strong>Technologies:</strong>{" "}
                     <div className="tech-tags">
+                      <strong className="tech-label">Technologies:</strong>
                       {project.technologies.map((tech, index) => (
                         <span key={index} className="tech-tag">
                           {tech}

@@ -22,10 +22,11 @@
   margin: 20px auto;
   padding: 30px;
 
-  /* Web typography */
+  /* Dynamic typography */
   font-size: 14px;
   line-height: 1.6;
-  text-align: justify;
+  text-align: var(--resume-text-alignment, left);
+  text-justify: inter-word;
 
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
@@ -103,7 +104,7 @@
 }
 
 .template-executive .header {
-  text-align: center;
+  text-align: var(--resume-heading-alignment, left);
   border-bottom: 2px solid var(--resume-theme-color);
   padding-bottom: 24px;
 }
@@ -111,12 +112,13 @@
 .template-executive .header h1,
 .template-executive .header .tagline,
 .template-executive .header .contact-info {
-  text-align: center;
-  justify-content: center;
+  text-align: var(--resume-heading-alignment, left);
+  justify-content: flex-start;
+  /* Default for better control */
 }
 
 .template-executive .section-title {
-  text-align: center;
+  text-align: var(--resume-heading-alignment, left);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -176,7 +178,7 @@
   font-size: 32px;
   color: var(--resume-theme-color);
   margin-bottom: 5px;
-  text-align: left;
+  text-align: var(--resume-heading-alignment, left);
 }
 
 .resume-display.preview-mode .header h1 {
@@ -191,6 +193,7 @@
   /* Darkened from #555 */
   margin-bottom: 10px;
   line-height: 1.5;
+  text-align: var(--resume-text-alignment, left);
 }
 
 .resume-display.preview-mode .header .tagline {
@@ -203,6 +206,7 @@
   font-size: 14px;
   color: #222;
   /* Maximum contrast for primary metadata */
+  text-align: var(--resume-heading-alignment, left);
 }
 
 .resume-display.preview-mode .contact-info {
@@ -275,8 +279,7 @@
   /* Prevent Orphan Headers: Keep title with following content */
   page-break-after: avoid;
   break-after: avoid;
-  text-align: left;
-  /* Ensure headings are not justified */
+  text-align: var(--resume-heading-alignment, left);
 }
 
 .resume-display.preview-mode .section-title {
@@ -303,7 +306,11 @@
 .resume-display.preview-mode .project,
 .resume-display.preview-mode .award-item {
   margin-bottom: 5mm;
-  /* Was 3mm */
+  padding-top: 2mm;
+  /* Consistent padding at the start */
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  /* For webkit browsers/PDF engines */
 }
 
 .job-header,
@@ -326,19 +333,28 @@
 
 .company,
 .institution,
-.project-title,
-.award-title {
+.project-title {
   font-weight: bold;
   font-size: 16px;
   color: #1a2a3a;
-  /* Deepened slate for more impact */
+}
+
+.award-title {
+  font-weight: bold;
+  font-size: 15px;
+  /* Slightly smaller for hierarchy */
+  color: #1a2a3a;
 }
 
 .resume-display.preview-mode .company,
 .resume-display.preview-mode .institution,
 .resume-display.preview-mode .project-title {
   font-size: 12pt;
-  /* Was 11pt */
+}
+
+.resume-display.preview-mode .award-title {
+  font-size: 11pt;
+  /* Scaled down for print hierarchy */
 }
 
 .project-subtitle {
@@ -399,39 +415,73 @@
   /* Was 10pt */
 }
 
-.date,
-.award-date,
-.award-issuer {
+.date {
   font-size: 13px;
   color: #333;
-  /* High-definition metadata */
   font-weight: normal;
 }
 
-.resume-display.preview-mode .date,
+.award-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.award-date,
+.award-issuer {
+  font-size: 12px;
+  color: #555;
+  font-weight: normal;
+}
+
+.award-meta .separator {
+  color: #888;
+  font-size: 10px;
+}
+
+.resume-display.preview-mode .date {
+  font-size: 9pt;
+}
+
+.resume-display.preview-mode .award-meta {
+  margin-bottom: 1mm;
+}
+
 .resume-display.preview-mode .award-date,
 .resume-display.preview-mode .award-issuer {
-  font-size: 9pt;
-  /* Was 8pt */
+  font-size: 8.5pt;
 }
 
 .description,
 .responsibilities,
 .technologies,
-.award-description,
 .additional-skills {
   font-size: 14px;
   color: #1a1a1a;
-  /* Ink-black for crisp readability */
   margin-top: 8px;
   line-height: 1.5;
+}
+
+.award-description {
+  font-size: 13.5px;
+  /* Downsized */
+  color: #2d2d2d;
+  margin-top: 6px;
+  line-height: 1.4;
 }
 
 .tech-tags {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   margin-top: 5px;
+}
+
+.tech-label {
+  margin-right: 4px;
+  color: #222;
 }
 
 .tech-tag {
@@ -511,6 +561,7 @@
   font-size: 14px;
   color: #111;
   /* Matched base black */
+  text-align: var(--resume-heading-alignment, left);
 }
 
 .resume-display.preview-mode .skill-name {
@@ -544,15 +595,33 @@
   font-size: 14px;
   flex-wrap: wrap;
   position: relative;
+  padding-left: 18px;
+  /* Space for the bullet */
+  margin-bottom: 6px;
+}
+
+.additional-skill-item::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--resume-theme-color);
+  font-weight: bold;
+  font-size: 1.2em;
 }
 
 .resume-display.preview-mode .additional-skill-item {
   font-size: 10pt;
   /* Was 9pt */
   margin-bottom: 2px;
+  padding-left: 14px;
 }
 
-.additional-skills ul,
+.additional-skills ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 5px;
+}
+
 .awards ul {
   list-style: none;
   padding: 0;
@@ -680,6 +749,10 @@
     font-size: 12pt;
   }
 
+  .award-title {
+    font-size: 11pt;
+  }
+
   /* UPDATED */
   .position,
   .degree {
@@ -701,6 +774,15 @@
   /* UPDATED */
   .date {
     font-size: 9pt;
+  }
+
+  .award-date,
+  .award-issuer {
+    font-size: 8.5pt;
+  }
+
+  .award-description {
+    font-size: 10pt;
   }
 
   /* UPDATED */

@@ -40,6 +40,11 @@ const fonts = [
     { value: "'Playfair Display', serif", label: "Playfair (High-End & Bold)" },
 ];
 
+const alignments = [
+    { value: "left", label: "Left" },
+    { value: "justify", label: "Justify" },
+];
+
 const ResumeSettingsPanel: React.FC = () => {
     const dispatch = useDispatch();
     const settings = useSelector(
@@ -58,6 +63,10 @@ const ResumeSettingsPanel: React.FC = () => {
 
     const handleFontChange = (value: string) => {
         dispatch(updateSettings({ fontFamily: value }));
+    };
+
+    const handleAlignmentChange = (value: string) => {
+        dispatch(updateSettings({ textAlignment: value as any }));
     };
 
     const handleVisibilityToggle = (section: string, visible: boolean) => {
@@ -107,6 +116,14 @@ const ResumeSettingsPanel: React.FC = () => {
                                     handleFontChange(detail.selectedOption.value!)
                                 }
                                 options={fonts}
+                            />
+                        </FormField>
+
+                        <FormField label="Text Alignment">
+                            <RadioGroup
+                                onChange={({ detail }) => handleAlignmentChange(detail.value)}
+                                value={settings.textAlignment || 'left'}
+                                items={alignments}
                             />
                         </FormField>
                     </SpaceBetween>

@@ -7,6 +7,7 @@ import { DatabaseService } from "../services/database";
 import { PDFExportService } from "../services/pdfExport";
 import { JSONExportService } from "../services/jsonExport";
 import { WordExportService } from "../services/wordExport";
+import { MarkdownExportService } from "../services/markdownExport";
 import ResumeDisplay from "./ResumeDisplay";
 import ContactInfoEditor from "./editors/ContactInfoEditor";
 import ExperienceEditor from "./editors/ExperienceEditor";
@@ -236,6 +237,21 @@ const ResumeBuilder: React.FC = () => {
     }
   };
 
+  const handleExportMarkdown = () => {
+    if (currentResume) {
+      try {
+        const filename = currentResume.contactInfo.name
+          ? `${currentResume.contactInfo.name.replace(/\s+/g, "_")}_Resume.md`
+          : "Resume.md";
+        MarkdownExportService.exportToMarkdown(currentResume, filename);
+      } catch (error) {
+        console.error("Failed to export Markdown:", error);
+        setErrorMessage("Failed to export Markdown. Please try again.");
+        setShowErrorModal(true);
+      }
+    }
+  };
+
   const togglePreview = () => {
     setIsPreviewMode(!isPreviewMode);
   };
@@ -260,6 +276,7 @@ const ResumeBuilder: React.FC = () => {
   const exportDropdownItems = [
     { id: "pdf", text: "Export as PDF", iconName: "file" as const },
     { id: "word", text: "Export as Word", iconName: "file" as const },
+    { id: "markdown", text: "Export as Markdown", iconName: "file" as const },
     { id: "json", text: "Export as JSON", iconName: "file-open" as const },
   ];
 
@@ -281,6 +298,7 @@ const ResumeBuilder: React.FC = () => {
             if (id === "pdf") handleExportPDF();
             else if (id === "word") handleExportWord();
             else if (id === "json") handleExportJSON();
+            else if (id === "markdown") handleExportMarkdown();
           },
         },
       ]
@@ -317,6 +335,7 @@ const ResumeBuilder: React.FC = () => {
             if (id === "pdf") handleExportPDF();
             else if (id === "word") handleExportWord();
             else if (id === "json") handleExportJSON();
+            else if (id === "markdown") handleExportMarkdown();
           },
         },
       ]),
