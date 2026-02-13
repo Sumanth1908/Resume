@@ -39,7 +39,16 @@ const SkillEditor: React.FC<SkillEditorProps> = ({ skill, onClose }) => {
 
   const handleChange = (value: string, name: string) => {
     if (name === "level") {
-      setFormData((prev) => ({ ...prev, [name]: parseInt(value) }));
+      // Remove any non-digits
+      const digitsOnly = value.replace(/\D/g, "");
+      if (digitsOnly === "") {
+        setFormData((prev) => ({ ...prev, [name]: 0 }));
+        return;
+      }
+      let numericValue = parseInt(digitsOnly, 10);
+      // Clamp between 0 and 100
+      numericValue = Math.min(100, Math.max(0, numericValue));
+      setFormData((prev) => ({ ...prev, [name]: numericValue }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -128,11 +137,10 @@ const SkillEditor: React.FC<SkillEditorProps> = ({ skill, onClose }) => {
           >
             <div className="skill-level-group">
               <Input
-                type="number"
-                id="level"
+                inputMode="numeric"
                 value={formData.level.toString()}
                 onChange={(e) => handleChange(e.detail.value, "level")}
-                inputMode="numeric"
+                placeholder="0-100"
               />
               <span className="skill-level-value">{formData.level}%</span>
             </div>

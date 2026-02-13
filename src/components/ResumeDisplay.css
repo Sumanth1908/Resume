@@ -1,8 +1,17 @@
 /* Resume Display Styles */
 
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --resume-theme-color: #0972d3;
+  --resume-font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
 /* --- BASE STYLES (Edit Mode / Web View) --- */
 .resume-display {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--resume-font-family);
   color: #333;
   background: white;
 
@@ -59,6 +68,82 @@
   background-repeat: repeat-y;
 }
 
+/* --- TEMPLATE LAYOUTS --- */
+
+.template-modern.has-sidebar .container {
+  display: block;
+}
+
+.template-modern.has-sidebar .sidebar {
+  float: right;
+  width: 30%;
+  margin-left: 30px;
+  margin-bottom: 20px;
+}
+
+.template-modern.has-sidebar .main-content {
+  display: block;
+}
+
+.template-modern.no-sidebar .container,
+.template-modern.no-sidebar .main-content {
+  display: block;
+  width: 100%;
+}
+
+.template-classic .container,
+.template-executive .container {
+  display: block;
+}
+
+.template-classic .sidebar,
+.template-executive .sidebar {
+  margin-top: 24px;
+}
+
+.template-executive .header {
+  text-align: center;
+  border-bottom: 2px solid var(--resume-theme-color);
+  padding-bottom: 24px;
+}
+
+.template-executive .header h1,
+.template-executive .header .tagline,
+.template-executive .header .contact-info {
+  text-align: center;
+  justify-content: center;
+}
+
+.template-executive .section-title {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Fix for float mixing */
+.template-modern.has-sidebar .job-header,
+.template-modern.has-sidebar .education-header,
+.template-modern.has-sidebar .project-header,
+.template-modern.has-sidebar .award-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  overflow: hidden;
+  /* This makes the block respect the floated sidebar width */
+}
+
+.template-modern.has-sidebar .job-header>div:first-child,
+.template-modern.has-sidebar .education-header>div:first-child,
+.template-modern.has-sidebar .project-header>div:first-child,
+.template-modern.has-sidebar .award-header>div:first-child {
+  padding-right: 0;
+}
+
+.template-modern.has-sidebar .job-header .date {
+  font-style: italic;
+  font-weight: normal;
+}
+
 /* --- COMMON COMPONENT STYLES --- */
 
 .resume-placeholder {
@@ -76,7 +161,7 @@
 
 /* HEADER */
 .header {
-  border-bottom: 3px solid #2c3e50;
+  border-bottom: 3px solid var(--resume-theme-color);
   padding-bottom: 20px;
   margin-bottom: 25px;
 }
@@ -88,7 +173,7 @@
 
 .header h1 {
   font-size: 32px;
-  color: #2c3e50;
+  color: var(--resume-theme-color);
   margin-bottom: 5px;
   text-align: left;
 }
@@ -129,14 +214,11 @@
 
 /* LAYOUT GRID */
 .container {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
   gap: 30px;
 }
 
 .resume-display.preview-mode .container {
-  grid-template-columns: 2.2fr 1fr;
-  gap: 8mm;
+  display: block;
 }
 
 .main-content {
@@ -151,7 +233,7 @@
 }
 
 .sidebar {
-  background: #f8f9fa;
+  background: rgba(var(--resume-theme-color-rgb, 144, 144, 144), 0.05);
   padding: 20px;
   border-radius: 5px;
   height: fit-content;
@@ -163,6 +245,7 @@
 
 .full-width-content {
   width: 100%;
+  clear: both;
 }
 
 /* SECTIONS */
@@ -178,13 +261,14 @@
 .section-title {
   font-size: 14pt;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--resume-theme-color);
   text-transform: uppercase;
-  border-bottom: 2px solid #2c3e50;
+  border-bottom: 2px solid var(--resume-theme-color);
   padding-bottom: 5px;
   margin-bottom: 12px;
   margin-top: 0;
-
+  overflow: hidden;
+  /* Respect the float without clearing it */
   /* Prevent Orphan Headers: Keep title with following content */
   page-break-after: avoid;
   break-after: avoid;
@@ -227,6 +311,9 @@
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 5px;
+  flex-wrap: wrap;
+  /* Allow wrapping to prevent crushing */
+  position: relative;
 }
 
 .resume-display.preview-mode .job-header,
@@ -269,8 +356,8 @@
   display: inline-block;
   margin-left: 8px;
   padding: 2px 8px;
-  background-color: #e3f2fd;
-  color: #1976d2;
+  background-color: rgba(var(--resume-theme-color-rgb, 9, 114, 211), 0.1);
+  color: var(--resume-theme-color);
   font-size: 12px;
   font-weight: normal;
   border-radius: 4px;
@@ -332,6 +419,27 @@
   line-height: 1.5;
 }
 
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.tech-tag {
+  font-size: 12px;
+  padding: 2px 8px;
+  background-color: rgba(var(--resume-theme-color-rgb, 9, 114, 211), 0.08);
+  color: var(--resume-theme-color);
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.resume-display.preview-mode .tech-tag {
+  font-size: 8pt;
+  padding: 1px 4px;
+}
+
 .resume-display.preview-mode .description,
 .resume-display.preview-mode .responsibilities,
 .resume-display.preview-mode .technologies,
@@ -384,6 +492,9 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
+  flex-wrap: wrap;
+  /* Allow wrapping for long skill names */
+  position: relative;
 }
 
 .skill-name {
@@ -411,7 +522,7 @@
 
 .skill-level {
   height: 100%;
-  background: linear-gradient(90deg, #3498db, #2980b9);
+  background: var(--resume-theme-color);
   transition: width 0.3s ease;
 }
 
@@ -420,6 +531,8 @@
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
+  flex-wrap: wrap;
+  position: relative;
 }
 
 .resume-display.preview-mode .additional-skill-item {
@@ -436,10 +549,13 @@
 
 /* ACTIONS */
 .actions {
-  display: flex;
-  gap: 8px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  display: none;
+  /* Use display:none to not take space when not hovered */
+  gap: 4px;
+  /* More compact gap */
+  background: transparent;
+  padding: 2px;
+  border-radius: 4px;
 }
 
 .resume-display:not(.preview-mode) .job:hover .actions,
@@ -448,7 +564,7 @@
 .resume-display:not(.preview-mode) .skill-item:hover .actions,
 .resume-display:not(.preview-mode) .additional-skill-item:hover .actions,
 .resume-display:not(.preview-mode) .award-item:hover .actions {
-  opacity: 1;
+  display: flex;
 }
 
 .resume-display.preview-mode .actions {
@@ -579,8 +695,7 @@
   /* UPDATED */
 
   .container {
-    grid-template-columns: 2.2fr 1fr;
-    gap: 8mm;
+    display: block;
   }
 
   .sidebar {
@@ -616,8 +731,7 @@
 /* --- MOBILE RESPONSIVE (Edit Mode) --- */
 @media (max-width: 768px) {
   .container {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    display: block;
   }
 
   .header h1 {

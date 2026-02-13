@@ -21,14 +21,18 @@ import Box from "@cloudscape-design/components/box";
 import Container from "@cloudscape-design/components/container";
 import AppLayout from "@cloudscape-design/components/app-layout";
 import AppHeader from "./AppHeader";
-import AddSectionDropdown from "./AddSectionDropdown";
+import FloatingAddButton from "./FloatingAddButton";
 import Modal from "@cloudscape-design/components/modal";
 import Flashbar, { FlashbarProps } from "@cloudscape-design/components/flashbar";
+import Tabs from "@cloudscape-design/components/tabs";
+import ResumeSettingsPanel from "./ResumeSettingsPanel";
+import ResumeStrengthPanel from "./ResumeStrengthPanel";
 
 const ResumeBuilder: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [toolsOpen, setToolsOpen] = useState(false);
   const { currentResume, isEditing, editingSection, editingItemId } =
     useSelector((state: RootState) => state.resume);
 
@@ -256,6 +260,12 @@ const ResumeBuilder: React.FC = () => {
       : [
         {
           type: "button" as const,
+          iconName: "settings",
+          text: "Customize",
+          onClick: () => setToolsOpen(!toolsOpen),
+        },
+        {
+          type: "button" as const,
           text: isSaving ? "Saving..." : "Save",
           disabled: isSaving,
           onClick: handleSave,
@@ -295,91 +305,104 @@ const ResumeBuilder: React.FC = () => {
           <Flashbar items={notifications} />
         </div>
       )}
+      <div style={{ position: "sticky", top: 0, zIndex: 1001 }}>
+        <AppHeader
+          title={isPreviewMode ? "Resume Preview" : "Resume Builder"}
+          utilities={headerUtilities}
+        />
+      </div>
+
       <AppLayout
         contentType="form"
         navigationHide
-        toolsHide
+        toolsHide={isPreviewMode}
+        toolsOpen={toolsOpen}
+        onToolsChange={({ detail }) => setToolsOpen(detail.open)}
+        tools={
+          <Tabs
+            tabs={[
+              {
+                label: "Settings",
+                id: "settings",
+                content: <ResumeSettingsPanel />,
+              },
+              {
+                label: "Strength",
+                id: "strength",
+                content: <ResumeStrengthPanel />,
+              },
+            ]}
+          />
+        }
         content={
-          <Container>
-            <SpaceBetween size="l">
-              <AppHeader
-                title={isPreviewMode ? "Resume Preview" : "Resume Builder"}
-                utilities={headerUtilities}
-              />
-
-              {/* Add Section dropdown moved out of header to avoid TopNavigation callback issues */}
-              {!isPreviewMode && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    marginTop: 8,
-                  }}
-                >
-                  <AddSectionDropdown
+          <div style={{ scrollPaddingTop: "80px" }}>
+            <Container>
+              <SpaceBetween size="l">
+                {!isPreviewMode && (
+                  <FloatingAddButton
                     disabled={activeEditor !== ""}
                     onOpenEditor={openEditor}
                   />
-                </div>
-              )}
-
-              <div>
-                <ResumeDisplay
-                  resume={currentResume}
-                  isPreview={isPreviewMode}
-                />
-
-                {!isPreviewMode && currentResume.experiences.length === 0 && (
-                  <Box padding={{ vertical: "xl" }} textAlign="center">
-                    <SpaceBetween size="s">
-                      <Button
-                        onClick={() => openEditor("experience")}
-                        iconName="add-plus"
-                        variant="primary"
-                      >
-                        Add your first work experience
-                      </Button>
-                      <Box variant="p" color="text-body-secondary">
-                        Click to start adding your professional experience
-                      </Box>
-                    </SpaceBetween>
-                  </Box>
                 )}
-              </div>
 
-              {isEditing && (
-                <>
-                  {activeEditor === "contact" && (
-                    <ContactInfoEditor onClose={closeEditor} />
+                <div>
+                  <ResumeDisplay
+                    resume={currentResume}
+                    isPreview={isPreviewMode}
+                  />
+
+                  {!isPreviewMode && currentResume.experiences.length === 0 && (
+                    <Box padding={{ vertical: "xl" }} textAlign="center">
+                      <SpaceBetween size="s">
+                        <Button
+                          onClick={() => openEditor("experience")}
+                          iconName="add-plus"
+                          variant="primary"
+                        >
+                          Add your first work experience
+                        </Button>
+                        <Box variant="p" color="text-body-secondary">
+                          Click to start adding your professional experience
+                        </Box>
+                      </SpaceBetween>
+                    </Box>
                   )}
-                  {activeEditor === "experience" && (
-                    <ExperienceEditor
-                      experience={selectedExperience}
-                      onClose={closeEditor}
-                    />
-                  )}
-                  {activeEditor === "project" && (
-                    <ProjectEditor
-                      project={selectedProject}
-                      onClose={closeEditor}
-                    />
-                  )}
-                  {activeEditor === "skill" && (
-                    <SkillEditor skill={selectedSkill} onClose={closeEditor} />
-                  )}
-                  {activeEditor === "education" && (
-                    <EducationEditor
-                      education={selectedEducation}
-                      onClose={closeEditor}
-                    />
-                  )}
-                  {activeEditor === "award" && (
-                    <AwardEditor award={selectedAward} onClose={closeEditor} />
-                  )}
-                </>
-              )}
-            </SpaceBetween>
-          </Container>
+                </div>
+
+                {isEditing && (
+                  <>
+                    {activeEditor === "contact" && (
+                      <ContactInfoEditor onClose={closeEditor} />
+                    )}
+                    {activeEditor === "experience" && (
+                      <ExperienceEditor
+                        experience={selectedExperience}
+                        onClose={closeEditor}
+                      />
+                    )}
+                    {activeEditor === "project" && (
+                      <ProjectEditor
+                        project={selectedProject}
+                        onClose={closeEditor}
+                      />
+                    )}
+                    {activeEditor === "skill" && (
+                      <SkillEditor skill={selectedSkill} onClose={closeEditor} />
+                    )}
+                    {activeEditor === "education" && (
+                      <EducationEditor
+                        education={selectedEducation}
+                        onClose={closeEditor}
+                      />
+                    )}
+                    {activeEditor === "award" && (
+                      <AwardEditor award={selectedAward} onClose={closeEditor} />
+                    )}
+                  </>
+                )}
+              </SpaceBetween>
+            </Container>
+          </div>
         }
       />
 

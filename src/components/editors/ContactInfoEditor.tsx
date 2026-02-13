@@ -38,7 +38,12 @@ const ContactInfoEditor: React.FC<ContactInfoEditorProps> = ({ onClose }) => {
   }, [contactInfo]);
 
   const handleChange = (value: string, name: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let finalValue = value;
+    if (name === "phone") {
+      // Allow only digits and common phone symbols
+      finalValue = value.replace(/[^\d+\-()\s]/g, "");
+    }
+    setFormData((prev) => ({ ...prev, [name]: finalValue }));
   };
 
   const handleSubmit = () => {
@@ -79,9 +84,9 @@ const ContactInfoEditor: React.FC<ContactInfoEditorProps> = ({ onClose }) => {
           stretch
         >
           <Input
-            type="text"
             value={formData.name || ""}
             onChange={(e) => handleChange(e.detail.value, "name")}
+            placeholder="e.g., Jane Doe"
           />
         </FormField>
 
@@ -91,9 +96,10 @@ const ContactInfoEditor: React.FC<ContactInfoEditorProps> = ({ onClose }) => {
           stretch
         >
           <Input
-            type="number"
+            inputMode="tel"
             value={formData.phone || ""}
             onChange={(e) => handleChange(e.detail.value, "phone")}
+            placeholder="e.g., +1 555 123 4567"
           />
         </FormField>
 
@@ -106,6 +112,7 @@ const ContactInfoEditor: React.FC<ContactInfoEditorProps> = ({ onClose }) => {
             type="email"
             value={formData.email || ""}
             onChange={(e) => handleChange(e.detail.value, "email")}
+            placeholder="e.g., jane.doe@example.com"
           />
         </FormField>
 

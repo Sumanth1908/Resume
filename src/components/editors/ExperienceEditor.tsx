@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { addExperience, updateExperience } from "../../store/resumeSlice";
 import { Experience } from "../../types/resume";
+import { polishBulletPoint } from "../../utils/aiUtils";
+import { FEATURE_FLAGS } from "../../config/featureFlags";
 import Modal from "@cloudscape-design/components/modal";
 import Box from "@cloudscape-design/components/box";
 import SpaceBetween from "@cloudscape-design/components/space-between";
@@ -122,6 +124,48 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     }
   };
 
+  const moveResponsibility = (index: number, direction: "up" | "down") => {
+    const newResponsibilities = [...formData.responsibilities];
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex >= 0 && newIndex < newResponsibilities.length) {
+      const temp = newResponsibilities[newIndex];
+      newResponsibilities[newIndex] = newResponsibilities[index];
+      newResponsibilities[index] = temp;
+      setFormData((prev) => ({
+        ...prev,
+        responsibilities: newResponsibilities,
+      }));
+    }
+  };
+
+  const [polishingIndex, setPolishingIndex] = useState<number | null>(null);
+  const [isPolishingDesc, setIsPolishingDesc] = useState(false);
+
+  const handlePolishResponsibility = async (index: number) => {
+    const text = formData.responsibilities[index];
+    if (!text) return;
+
+    setPolishingIndex(index);
+    try {
+      const polished = await polishBulletPoint(text);
+      handleResponsibilityChange(index, polished);
+    } finally {
+      setPolishingIndex(null);
+    }
+  };
+
+  const handlePolishDescription = async () => {
+    if (!formData.description) return;
+
+    setIsPolishingDesc(true);
+    try {
+      const polished = await polishBulletPoint(formData.description);
+      setFormData((prev) => ({ ...prev, description: polished }));
+    } finally {
+      setIsPolishingDesc(false);
+    }
+  };
+
   const [visible, setVisible] = useState(true);
 
   const handleSubmit = () => {
@@ -238,12 +282,25 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
           description="Brief overview of your role and achievements"
           stretch
         >
-          <Textarea
-            value={formData.description}
-            onChange={(e) => handleChange(e.detail.value, "description")}
-            rows={4}
-            placeholder="Brief overview of your role and achievements"
-          />
+          <div style={{ position: "relative" }}>
+            <Textarea
+              value={formData.description}
+              onChange={(e) => handleChange(e.detail.value, "description")}
+              rows={4}
+              placeholder="Brief overview of your role and achievements"
+            />
+            {FEATURE_FLAGS.AI_POLISH && (
+              <div style={{ position: "absolute", bottom: "8px", right: "8px" }}>
+                <Button
+                  variant="icon"
+                  iconName="gen-ai"
+                  loading={isPolishingDesc}
+                  onClick={handlePolishDescription}
+                  ariaLabel="Polish with AI"
+                />
+              </div>
+            )}
+          </div>
         </FormField>
 
         <FormField
@@ -264,19 +321,45 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
                     placeholder="Describe a key responsibility or achievement"
                   />
                 </div>
-                {formData.responsibilities.length > 1 && (
-                  <Button
-                    onClick={() => removeResponsibility(index)}
-                    variant="icon"
-                    iconName="remove"
-                    ariaLabel="Remove responsibility"
-                  />
-                )}
+                <SpaceBetween direction="horizontal" size="xs">
+                  {formData.responsibilities.length > 1 && (
+                    <>
+                      <Button
+                        onClick={() => moveResponsibility(index, "up")}
+                        variant="icon"
+                        iconName="angle-up"
+                        disabled={index === 0}
+                        ariaLabel="Move up"
+                      />
+                      <Button
+                        onClick={() => moveResponsibility(index, "down")}
+                        variant="icon"
+                        iconName="angle-down"
+                        disabled={index === formData.responsibilities.length - 1}
+                        ariaLabel="Move down"
+                      />
+                      {FEATURE_FLAGS.AI_POLISH && (
+                        <Button
+                          onClick={() => handlePolishResponsibility(index)}
+                          variant="icon"
+                          iconName="gen-ai"
+                          loading={polishingIndex === index}
+                          ariaLabel="Polish with AI"
+                        />
+                      )}
+                      <Button
+                        onClick={() => removeResponsibility(index)}
+                        variant="icon"
+                        iconName="remove"
+                        ariaLabel="Remove responsibility"
+                      />
+                    </>
+                  )}
+                </SpaceBetween>
               </div>
             ))}
             <Button
               onClick={addResponsibility}
-              variant="normal"
               iconName="add-plus"
             >
               Add Responsibility

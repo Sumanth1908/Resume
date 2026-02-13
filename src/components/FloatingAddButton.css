@@ -1,0 +1,73 @@
+.fab-container {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fab-container:hover {
+    transform: scale(1.05);
+}
+
+/* Style the Cloudscape button to look more like a FAB */
+.fab-container [data-analytics-dropdown-trigger="true"],
+.fab-container button {
+    height: 56px !important;
+    width: 56px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: #0972d3 !important;
+    border-color: #0972d3 !important;
+    color: white !important;
+}
+
+.fab-container [data-analytics-dropdown-trigger="true"]:hover,
+.fab-container button:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+    background-color: #035ea2 !important;
+}
+
+.fab-icon {
+    font-size: 32px;
+    line-height: 1;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ensure the dropdown menu appears above the FAB and doesn't get cut off */
+.fab-container [role="menu"] {
+    bottom: 64px !important;
+    top: auto !important;
+    right: 0 !important;
+    left: auto !important;
+    min-width: 200px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+    padding: 8px !important;
+}
+
+/* Fade in animation for the container */
+@keyframes fab-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.fab-container {
+    animation: fab-fade-in 0.4s ease-out forwards;
+}

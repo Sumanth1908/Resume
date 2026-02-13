@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { addProject, updateProject } from "../../store/resumeSlice";
 import { Project } from "../../types/resume";
 import { RootState } from "../../store/store";
+import { polishBulletPoint } from "../../utils/aiUtils";
+import { FEATURE_FLAGS } from "../../config/featureFlags";
 import "./Editor.css";
 import Modal from "@cloudscape-design/components/modal";
 import Box from "@cloudscape-design/components/box";
@@ -96,6 +98,49 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
     }
   };
 
+  const moveArrayItem = (
+    field: "responsibilities" | "technologies",
+    index: number,
+    direction: "up" | "down"
+  ) => {
+    const newArray = [...formData[field]];
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex >= 0 && newIndex < newArray.length) {
+      const temp = newArray[newIndex];
+      newArray[newIndex] = newArray[index];
+      newArray[index] = temp;
+      setFormData((prev) => ({ ...prev, [field]: newArray }));
+    }
+  };
+
+  const [polishingIndex, setPolishingIndex] = useState<number | null>(null);
+  const [isPolishingDesc, setIsPolishingDesc] = useState(false);
+
+  const handlePolishItem = async (index: number) => {
+    const text = formData.responsibilities[index];
+    if (!text) return;
+
+    setPolishingIndex(index);
+    try {
+      const polished = await polishBulletPoint(text);
+      handleArrayChange("responsibilities", index, polished);
+    } finally {
+      setPolishingIndex(null);
+    }
+  };
+
+  const handlePolishDescription = async () => {
+    if (!formData.description) return;
+
+    setIsPolishingDesc(true);
+    try {
+      const polished = await polishBulletPoint(formData.description);
+      setFormData((prev) => ({ ...prev, description: polished }));
+    } finally {
+      setIsPolishingDesc(false);
+    }
+  };
+
   const [visible, setVisible] = useState(true);
 
   const handleSubmit = () => {
@@ -147,7 +192,6 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
         >
           <Input
             type="text"
-            id="title"
             value={formData.title}
             onChange={(e) => handleChange(e.detail.value, "title")}
             placeholder="e.g., E-commerce Platform, Mobile App"
@@ -161,7 +205,6 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
         >
           <Input
             type="text"
-            id="subtitle"
             value={formData.subtitle}
             onChange={(e) => handleChange(e.detail.value, "subtitle")}
             placeholder="Brief one-line description"
@@ -198,17 +241,28 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
         </FormField>
 
         <FormField
-          label="Project Description"
           description="Detailed description of the project"
           stretch
         >
-          <Textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) => handleChange(e.detail.value, "description")}
-            rows={4}
-            placeholder="Detailed description of the project, its purpose, and impact"
-          />
+          <div style={{ position: "relative" }}>
+            <Textarea
+              value={formData.description}
+              onChange={(e) => handleChange(e.detail.value, "description")}
+              rows={4}
+              placeholder="Detailed description of the project, its purpose, and impact"
+            />
+            {FEATURE_FLAGS.AI_POLISH && (
+              <div style={{ position: "absolute", bottom: "8px", right: "8px" }}>
+                <Button
+                  variant="icon"
+                  iconName="gen-ai"
+                  loading={isPolishingDesc}
+                  onClick={handlePolishDescription}
+                  ariaLabel="Polish with AI"
+                />
+              </div>
+            )}
+          </div>
         </FormField>
 
         <FormField
@@ -229,19 +283,36 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
                     placeholder="e.g., React, Node.js, MongoDB"
                   />
                 </div>
-                {formData.technologies.length > 1 && (
-                  <Button
-                    onClick={() => removeArrayItem("technologies", index)}
-                    variant="icon"
-                    iconName="remove"
-                    ariaLabel="Remove technology"
-                  />
-                )}
+                <SpaceBetween direction="horizontal" size="xs">
+                  {formData.technologies.length > 1 && (
+                    <>
+                      <Button
+                        onClick={() => moveArrayItem("technologies", index, "up")}
+                        variant="icon"
+                        iconName="angle-up"
+                        disabled={index === 0}
+                        ariaLabel="Move up"
+                      />
+                      <Button
+                        onClick={() => moveArrayItem("technologies", index, "down")}
+                        variant="icon"
+                        iconName="angle-down"
+                        disabled={index === formData.technologies.length - 1}
+                        ariaLabel="Move down"
+                      />
+                      <Button
+                        onClick={() => removeArrayItem("technologies", index)}
+                        variant="icon"
+                        iconName="remove"
+                        ariaLabel="Remove technology"
+                      />
+                    </>
+                  )}
+                </SpaceBetween>
               </div>
             ))}
             <Button
               onClick={() => addArrayItem("technologies")}
-              variant="normal"
               iconName="add-plus"
             >
               Add Technology
@@ -267,19 +338,45 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
                     placeholder="Describe your role or achievement in this project"
                   />
                 </div>
-                {formData.responsibilities.length > 1 && (
-                  <Button
-                    onClick={() => removeArrayItem("responsibilities", index)}
-                    variant="icon"
-                    iconName="remove"
-                    ariaLabel="Remove responsibility"
-                  />
-                )}
+                <SpaceBetween direction="horizontal" size="xs">
+                  {formData.responsibilities.length > 1 && (
+                    <>
+                      <Button
+                        onClick={() => moveArrayItem("responsibilities", index, "up")}
+                        variant="icon"
+                        iconName="angle-up"
+                        disabled={index === 0}
+                        ariaLabel="Move up"
+                      />
+                      <Button
+                        onClick={() => moveArrayItem("responsibilities", index, "down")}
+                        variant="icon"
+                        iconName="angle-down"
+                        disabled={index === formData.responsibilities.length - 1}
+                        ariaLabel="Move down"
+                      />
+                      {FEATURE_FLAGS.AI_POLISH && (
+                        <Button
+                          onClick={() => handlePolishItem(index)}
+                          variant="icon"
+                          iconName="gen-ai"
+                          loading={polishingIndex === index}
+                          ariaLabel="Polish with AI"
+                        />
+                      )}
+                      <Button
+                        onClick={() => removeArrayItem("responsibilities", index)}
+                        variant="icon"
+                        iconName="remove"
+                        ariaLabel="Remove responsibility"
+                      />
+                    </>
+                  )}
+                </SpaceBetween>
               </div>
             ))}
             <Button
               onClick={() => addArrayItem("responsibilities")}
-              variant="normal"
               iconName="add-plus"
             >
               Add Responsibility

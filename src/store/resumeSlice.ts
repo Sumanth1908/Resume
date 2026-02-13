@@ -7,6 +7,7 @@ import {
   Education,
   Award,
   ContactInfo,
+  ResumeSettings,
 } from "../types/resume";
 import { v4 as uuidv4 } from "uuid";
 
@@ -16,6 +17,19 @@ interface ResumeState {
   editingSection: string;
   editingItemId: string | null;
 }
+
+const defaultSettings: ResumeSettings = {
+  template: "modern",
+  themeColor: "#0972d3",
+  fontFamily: "Inter, sans-serif",
+  sectionVisibility: {
+    experience: true,
+    projects: true,
+    skills: true,
+    education: true,
+    awards: true,
+  },
+};
 
 const initialState: ResumeState = {
   currentResume: null,
@@ -29,7 +43,10 @@ const resumeSlice = createSlice({
   initialState,
   reducers: {
     setResume: (state, action: PayloadAction<ResumeData>) => {
-      state.currentResume = action.payload;
+      state.currentResume = {
+        ...action.payload,
+        settings: action.payload.settings || { ...defaultSettings },
+      };
     },
 
     createNewResume: (state) => {
@@ -48,6 +65,7 @@ const resumeSlice = createSlice({
         skills: [],
         education: [],
         awards: [],
+        settings: { ...defaultSettings },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -201,6 +219,25 @@ const resumeSlice = createSlice({
       }
     },
 
+    reorderSkill: (
+      state,
+      action: PayloadAction<{ id: string; direction: "up" | "down" }>
+    ) => {
+      if (state.currentResume) {
+        const { id, direction } = action.payload;
+        const arr = state.currentResume.skills;
+        const idx = arr.findIndex((skill) => skill.id === id);
+        if (idx === -1) return;
+        const newIndex = direction === "up" ? idx - 1 : idx + 1;
+        if (newIndex < 0 || newIndex >= arr.length) return;
+        // swap
+        const temp = arr[newIndex];
+        arr[newIndex] = arr[idx];
+        arr[idx] = temp;
+        state.currentResume.updatedAt = new Date().toISOString();
+      }
+    },
+
     addEducation: (state, action: PayloadAction<Omit<Education, "id">>) => {
       if (state.currentResume) {
         const newEducation: Education = {
@@ -277,6 +314,21 @@ const resumeSlice = createSlice({
       state.editingSection = action.payload.section || "";
       state.editingItemId = action.payload.editingItemId || null;
     },
+
+    updateSettings: (state, action: PayloadAction<Partial<ResumeSettings>>) => {
+      if (state.currentResume && state.currentResume.settings) {
+        const { sectionVisibility, ...otherSettings } = action.payload;
+        state.currentResume.settings = {
+          ...state.currentResume.settings,
+          ...otherSettings,
+          sectionVisibility: {
+            ...state.currentResume.settings.sectionVisibility,
+            ...(sectionVisibility || {}),
+          },
+        };
+        state.currentResume.updatedAt = new Date().toISOString();
+      }
+    },
   },
 });
 
@@ -295,6 +347,7 @@ export const {
   addSkill,
   updateSkill,
   deleteSkill,
+  reorderSkill,
   addEducation,
   updateEducation,
   deleteEducation,
@@ -302,6 +355,7 @@ export const {
   updateAward,
   deleteAward,
   setEditing,
+  updateSettings,
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;

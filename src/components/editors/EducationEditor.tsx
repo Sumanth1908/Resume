@@ -146,10 +146,9 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
           stretch
         >
           <Input
-            type="text"
-            name="institution"
             value={formData.institution}
             onChange={(e) => handleChange(e.detail.value, "institution")}
+            placeholder="e.g., University of Washington"
           />
         </FormField>
 
@@ -159,20 +158,17 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
           stretch
         >
           <Input
-            type="text"
-            name="degree"
             value={formData.degree}
             onChange={(e) => handleChange(e.detail.value, "degree")}
+            placeholder="e.g., Bachelor of Science in Computer Science"
           />
         </FormField>
 
         <FormField label="Location" description="City, State" stretch>
           <Input
-            type="text"
-            name="location"
             value={formData.location}
             onChange={(e) => handleChange(e.detail.value, "location")}
-            placeholder="City, State"
+            placeholder="e.g., Seattle, WA"
           />
         </FormField>
         <div className="form-row">
@@ -200,11 +196,10 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
           description="Brief summary of your education"
         >
           <Textarea
-            name="description"
             value={formData.description}
             onChange={(e) => handleChange(e.detail.value, "description")}
             rows={3}
-            placeholder="Brief summary of your education"
+            placeholder="Brief summary of your education, GPA, or honors"
           />
         </FormField>
       </Form>

@@ -177,13 +177,15 @@ const Home: React.FC = () => {
           <Flashbar items={notifications} />
         </div>
       )}
+      <div style={{ position: "sticky", top: 0, zIndex: 1001 }}>
+        <AppHeader />
+      </div>
       <AppLayout
         toolsHide
         navigationHide
         content={
           <Container>
             <SpaceBetween size="l">
-              <AppHeader />
               <Header
                 variant="h1"
                 actions={
@@ -239,7 +241,6 @@ const Home: React.FC = () => {
                         Create New Resume
                       </Button>
                       <Button
-                        variant="normal"
                         onClick={() => handleCreateNew(true)}
                         iconName="file"
                       >

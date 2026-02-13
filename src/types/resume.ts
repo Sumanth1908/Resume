@@ -54,6 +54,19 @@ export interface Award {
   issuer: string;
 }
 
+export interface ResumeSettings {
+  template: "modern" | "classic" | "executive";
+  themeColor: string;
+  fontFamily: string;
+  sectionVisibility: {
+    experience: boolean;
+    projects: boolean;
+    skills: boolean;
+    education: boolean;
+    awards: boolean;
+  };
+}
+
 export interface ResumeData {
   id: string;
   contactInfo: ContactInfo;
@@ -62,6 +75,7 @@ export interface ResumeData {
   skills: Skill[];
   education: Education[];
   awards: Award[];
+  settings?: ResumeSettings;
   createdAt: string;
   updatedAt: string;
 }

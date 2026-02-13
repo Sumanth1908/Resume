@@ -10,6 +10,7 @@ import {
   deleteAward,
   reorderExperience,
   reorderProject,
+  reorderSkill,
 } from "../store/resumeSlice";
 import Button from "@cloudscape-design/components/button";
 import { ResumeData } from "../types/resume";
@@ -19,6 +20,16 @@ interface ResumeDisplayProps {
   resume?: ResumeData;
   isPreview?: boolean;
 }
+
+const hexToRgb = (hex: string) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
+      result[3],
+      16
+    )}`
+    : "9, 114, 211";
+};
 
 const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
   resume,
@@ -38,19 +49,46 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
     );
   }
 
-  const { contactInfo, experiences, projects, skills, education, awards } =
-    displayResume;
+  const {
+    contactInfo,
+    experiences,
+    projects,
+    skills,
+    education,
+    awards,
+    settings,
+  } = displayResume;
+
+  const visibility = settings?.sectionVisibility || {
+    experience: true,
+    projects: true,
+    skills: true,
+    education: true,
+    awards: true,
+  };
+
   const technicalSkills = skills.filter(
     (skill) => skill.category === "technical"
   );
   const additionalSkills = skills.filter(
     (skill) => skill.category === "additional"
   );
+  const hasSidebarContent =
+    (skills.length > 0 && visibility.skills) ||
+    (awards.length > 0 && visibility.awards);
 
   return (
     <div
       id="resume-display"
-      className={`resume-display ${isPreview ? "preview-mode" : ""}`}
+      className={`resume-display ${isPreview ? "preview-mode" : ""} template-${settings?.template || "modern"
+        } ${hasSidebarContent ? "has-sidebar" : "no-sidebar"}`}
+      style={
+        {
+          "--resume-theme-color": settings?.themeColor || "#0972d3",
+          "--resume-theme-color-rgb": hexToRgb(settings?.themeColor || "#0972d3"),
+          "--resume-font-family": settings?.fontFamily || "Inter, sans-serif",
+        } as React.CSSProperties
+      }
     >
       <div className="header" style={{ position: 'relative' }}>
         {!isPreview && (
@@ -76,11 +114,205 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
         </div>
       </div>
 
-      {/* TWO-COLUMN SECTION: Experience + Skills */}
       <div className="container">
+        {hasSidebarContent && (
+          <div className="sidebar">
+            {/* SKILLS SECTION */}
+            {skills.length > 0 && visibility.skills && (
+              <div className="section">
+                <h2 className="section-title">Skills</h2>
+                {technicalSkills.length > 0 && (
+                  <div className="skills-chart">
+                    {technicalSkills.map((skill) => (
+                      <div key={skill.id} className="skill-item">
+                        <div className="skill-header">
+                          <div className="skill-name">{skill.name}</div>
+                          {!isPreview && (
+                            <div className="actions">
+                              <Button
+                                variant="icon"
+                                iconName="edit"
+                                onClick={() =>
+                                  dispatch(
+                                    setEditing({
+                                      isEditing: true,
+                                      section: "skill",
+                                      editingItemId: skill.id,
+                                    })
+                                  )
+                                }
+                                ariaLabel="Edit skill"
+                              />
+                              <Button
+                                variant="icon"
+                                iconName="angle-up"
+                                onClick={() =>
+                                  dispatch(
+                                    reorderSkill({
+                                      id: skill.id,
+                                      direction: "up",
+                                    })
+                                  )
+                                }
+                                ariaLabel="Move skill up"
+                              />
+                              <Button
+                                variant="icon"
+                                iconName="angle-down"
+                                onClick={() =>
+                                  dispatch(
+                                    reorderSkill({
+                                      id: skill.id,
+                                      direction: "down",
+                                    })
+                                  )
+                                }
+                                ariaLabel="Move skill down"
+                              />
+                              <Button
+                                variant="icon"
+                                iconName="remove"
+                                onClick={() => dispatch(deleteSkill(skill.id))}
+                                ariaLabel="Delete skill"
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <div className="skill-bar">
+                          <div
+                            className="skill-level"
+                            style={{ width: `${skill.level}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {additionalSkills.length > 0 && (
+                  <div className="additional-skills">
+                    <strong>Additional skills:</strong>
+                    <ul>
+                      {additionalSkills.map((skill) => (
+                        <li key={skill.id} className="additional-skill-item">
+                          <span>{skill.name}</span>
+                          {!isPreview && (
+                            <div className="actions">
+                              <Button
+                                variant="icon"
+                                iconName="edit"
+                                onClick={() =>
+                                  dispatch(
+                                    setEditing({
+                                      isEditing: true,
+                                      section: "skill",
+                                      editingItemId: skill.id,
+                                    })
+                                  )
+                                }
+                                ariaLabel="Edit skill"
+                              />
+                              <Button
+                                variant="icon"
+                                iconName="angle-up"
+                                onClick={() =>
+                                  dispatch(
+                                    reorderSkill({
+                                      id: skill.id,
+                                      direction: "up",
+                                    })
+                                  )
+                                }
+                                ariaLabel="Move skill up"
+                              />
+                              <Button
+                                variant="icon"
+                                iconName="angle-down"
+                                onClick={() =>
+                                  dispatch(
+                                    reorderSkill({
+                                      id: skill.id,
+                                      direction: "down",
+                                    })
+                                  )
+                                }
+                                ariaLabel="Move skill down"
+                              />
+                              <Button
+                                variant="icon"
+                                iconName="remove"
+                                onClick={() => dispatch(deleteSkill(skill.id))}
+                                ariaLabel="Delete skill"
+                              />
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* AWARDS & CERTIFICATIONS */}
+            {awards.length > 0 && visibility.awards && (
+              <div className="section">
+                <h2 className="section-title">Awards & Certifications</h2>
+                <div className="awards">
+                  <ul>
+                    {awards.map((award) => (
+                      <li key={award.id} className="award-item">
+                        <div className="award-content">
+                          <div className="award-header">
+                            <strong>{award.title}</strong>
+                            {!isPreview && (
+                              <div className="actions">
+                                <Button
+                                  variant="icon"
+                                  iconName="edit"
+                                  onClick={() =>
+                                    dispatch(
+                                      setEditing({
+                                        isEditing: true,
+                                        section: "award",
+                                        editingItemId: award.id,
+                                      })
+                                    )
+                                  }
+                                  ariaLabel="Edit award"
+                                />
+                                <Button
+                                  variant="icon"
+                                  iconName="remove"
+                                  onClick={() => dispatch(deleteAward(award.id))}
+                                  ariaLabel="Delete award"
+                                />
+                              </div>
+                            )}
+                          </div>
+                          {award.issuer && (
+                            <div className="award-issuer">{award.issuer}</div>
+                          )}
+                          {award.date && (
+                            <div className="award-date">{award.date}</div>
+                          )}
+                          {award.description && (
+                            <div className="award-description">
+                              {award.description}
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="main-content">
           {/* EXPERIENCE SECTION */}
-          {experiences.length > 0 && (
+          {experiences.length > 0 && visibility.experience && (
             <div className="section">
               <h2 className="section-title">Experience</h2>
               {experiences.map((experience) => (
@@ -171,153 +403,12 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
             </div>
           )}
         </div>
-
-        <div className="sidebar">
-          {/* SKILLS SECTION */}
-          {skills.length > 0 && (
-            <div className="section">
-              <h2 className="section-title">Skills</h2>
-              {technicalSkills.length > 0 && (
-                <div className="skills-chart">
-                  {technicalSkills.map((skill) => (
-                    <div key={skill.id} className="skill-item">
-                      <div className="skill-header">
-                        <div className="skill-name">{skill.name}</div>
-                        {!isPreview && (
-                          <div className="actions">
-                            <Button
-                              variant="icon"
-                              iconName="edit"
-                              onClick={() =>
-                                dispatch(
-                                  setEditing({
-                                    isEditing: true,
-                                    section: "skill",
-                                    editingItemId: skill.id,
-                                  })
-                                )
-                              }
-                              ariaLabel="Edit skill"
-                            />
-                            <Button
-                              variant="icon"
-                              iconName="remove"
-                              onClick={() => dispatch(deleteSkill(skill.id))}
-                              ariaLabel="Delete skill"
-                            />
-                          </div>
-                        )}
-                      </div>
-                      <div className="skill-bar">
-                        <div
-                          className="skill-level"
-                          style={{ width: `${skill.level}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {additionalSkills.length > 0 && (
-                <div className="additional-skills">
-                  <strong>Additional skills:</strong>
-                  <ul>
-                    {additionalSkills.map((skill) => (
-                      <li key={skill.id} className="additional-skill-item">
-                        <span>{skill.name}</span>
-                        {!isPreview && (
-                          <div className="actions">
-                            <Button
-                              variant="icon"
-                              iconName="edit"
-                              onClick={() =>
-                                dispatch(
-                                  setEditing({
-                                    isEditing: true,
-                                    section: "skill",
-                                    editingItemId: skill.id,
-                                  })
-                                )
-                              }
-                              ariaLabel="Edit skill"
-                            />
-                            <Button
-                              variant="icon"
-                              iconName="remove"
-                              onClick={() => dispatch(deleteSkill(skill.id))}
-                              ariaLabel="Delete skill"
-                            />
-                          </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-          {/* AWARDS & CERTIFICATIONS */}
-          {awards.length > 0 && (
-            <div className="section">
-              <h2 className="section-title">Awards & Certifications</h2>
-              <div className="awards">
-                <ul>
-                  {awards.map((award) => (
-                    <li key={award.id} className="award-item">
-                      <div className="award-content">
-                        <div className="award-header">
-                          <strong>{award.title}</strong>
-                          {!isPreview && (
-                            <div className="actions">
-                              <Button
-                                variant="icon"
-                                iconName="edit"
-                                onClick={() =>
-                                  dispatch(
-                                    setEditing({
-                                      isEditing: true,
-                                      section: "award",
-                                      editingItemId: award.id,
-                                    })
-                                  )
-                                }
-                                ariaLabel="Edit award"
-                              />
-                              <Button
-                                variant="icon"
-                                iconName="remove"
-                                onClick={() => dispatch(deleteAward(award.id))}
-                                ariaLabel="Delete award"
-                              />
-                            </div>
-                          )}
-                        </div>
-                        {award.issuer && (
-                          <div className="award-issuer">{award.issuer}</div>
-                        )}
-                        {award.date && (
-                          <div className="award-date">{award.date}</div>
-                        )}
-                        {award.description && (
-                          <div className="award-description">
-                            {award.description}
-                          </div>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* FULL-WIDTH SECTIONS BELOW */}
       <div className="full-width-content">
         {/* EDUCATION SECTION */}
-        {education.length > 0 && (
+        {education.length > 0 && visibility.education && (
           <div className="section">
             <h2 className="section-title">Education</h2>
             {education.map((edu) => (
@@ -369,7 +460,7 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
         )}
 
         {/* PROJECTS SECTION */}
-        {projects.length > 0 && (
+        {projects.length > 0 && visibility.projects && (
           <div className="section">
             <h2 className="section-title">Projects</h2>
             {projects.map((project, index) => (
@@ -457,7 +548,13 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
                 {project.technologies.length > 0 && (
                   <div className="technologies">
                     <strong>Technologies:</strong>{" "}
-                    {project.technologies.join(", ")}
+                    <div className="tech-tags">
+                      {project.technologies.map((tech, index) => (
+                        <span key={index} className="tech-tag">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
