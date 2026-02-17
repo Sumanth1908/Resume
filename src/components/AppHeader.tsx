@@ -9,9 +9,11 @@ interface AppHeaderProps {
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({ title, utilities }) => {
+  const isHashRouter = process.env.REACT_APP_USE_HASH_ROUTER === 'true';
+
   return (
     <TopNavigation
-      identity={{ href: "/", title }}
+      identity={{ href: isHashRouter ? "#/" : "/", title }}
       i18nStrings={{
         overflowMenuTriggerText: "More",
         searchIconAriaLabel: "Search",
