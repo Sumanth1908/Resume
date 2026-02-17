@@ -27,6 +27,7 @@ import FloatingAddButton from "./FloatingAddButton";
 import Modal from "@cloudscape-design/components/modal";
 import Flashbar, { FlashbarProps } from "@cloudscape-design/components/flashbar";
 import Tabs from "@cloudscape-design/components/tabs";
+import { APP_CONFIG } from "../config/constants";
 import ResumeSettingsPanel from "./ResumeSettingsPanel";
 import ResumeStrengthPanel from "./ResumeStrengthPanel";
 
@@ -46,6 +47,8 @@ const ResumeBuilder: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [notifications, setNotifications] = useState<FlashbarProps.MessageDefinition[]>([]);
   const [lastPersistedAt, setLastPersistedAt] = useState<Date | null>(null);
+  const [showCoffeeModal, setShowCoffeeModal] = useState(false);
+  const [pendingExport, setPendingExport] = useState<(() => void) | null>(null);
 
   useEffect(() => {
     if (notifications.length > 0) {
@@ -296,10 +299,14 @@ const ResumeBuilder: React.FC = () => {
           items: exportDropdownItems,
           onItemClick: (event: any) => {
             const id = event.detail.id;
-            if (id === "pdf") handleExportPDF();
-            else if (id === "word") handleExportWord();
-            else if (id === "json") handleExportJSON();
-            else if (id === "markdown") handleExportMarkdown();
+            let action = () => { };
+            if (id === "pdf") action = handleExportPDF;
+            else if (id === "word") action = handleExportWord;
+            else if (id === "json") action = handleExportJSON;
+            else if (id === "markdown") action = handleExportMarkdown;
+
+            setPendingExport(() => action);
+            setShowCoffeeModal(true);
           },
         },
       ]
@@ -333,10 +340,14 @@ const ResumeBuilder: React.FC = () => {
           items: exportDropdownItems,
           onItemClick: (event: any) => {
             const id = event.detail.id;
-            if (id === "pdf") handleExportPDF();
-            else if (id === "word") handleExportWord();
-            else if (id === "json") handleExportJSON();
-            else if (id === "markdown") handleExportMarkdown();
+            let action = () => { };
+            if (id === "pdf") action = handleExportPDF;
+            else if (id === "word") action = handleExportWord;
+            else if (id === "json") action = handleExportJSON;
+            else if (id === "markdown") action = handleExportMarkdown;
+
+            setPendingExport(() => action);
+            setShowCoffeeModal(true);
           },
         },
       ]),
@@ -476,6 +487,59 @@ const ResumeBuilder: React.FC = () => {
         }
       >
         {errorMessage}
+      </Modal>
+
+      <Modal
+        visible={showCoffeeModal}
+        onDismiss={() => {
+          setShowCoffeeModal(false);
+          setPendingExport(null);
+        }}
+        header="Support the Developer"
+        closeAriaLabel="Close modal"
+        footer={
+          <Box float="right">
+            <SpaceBetween direction="horizontal" size="xs">
+              <Button
+                variant="link"
+                onClick={() => {
+                  setShowCoffeeModal(false);
+                  if (pendingExport) pendingExport();
+                  setPendingExport(null);
+                }}
+              >
+                Continue to Export
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  window.open(APP_CONFIG.author.buyMeACoffee, "_blank");
+                  setShowCoffeeModal(false);
+                  if (pendingExport) pendingExport();
+                  setPendingExport(null);
+                }}
+              >
+                ☕ Buy Me a Coffee
+              </Button>
+            </SpaceBetween>
+          </Box>
+        }
+      >
+        <Box variant="p">
+          I hope you're finding this Resume Builder helpful! If you're getting value out of it, consider supporting the development with a small coffee.
+        </Box>
+        <Box margin={{ top: "m" }} textAlign="center">
+          <a href={APP_CONFIG.author.buyMeACoffee} target="_blank" rel="noopener noreferrer">
+            <img
+              src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+              alt="Buy Me A Coffee"
+              style={{ height: "60px", width: "217px" }}
+            />
+          </a>
+        </Box>
+        <Box variant="p" margin={{ top: "s" }}>
+          Your support helps keep the project alive and growing! 🚀
+        </Box>
       </Modal>
     </>
   );

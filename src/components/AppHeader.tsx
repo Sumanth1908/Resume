@@ -22,6 +22,12 @@ const AppHeader: React.FC<AppHeaderProps> = ({ title, utilities }) => {
         ...(utilities || []),
         {
           type: "button",
+          text: "☕ Buy Me a Coffee",
+          href: APP_CONFIG.author.buyMeACoffee,
+          external: true
+        },
+        {
+          type: "button",
           text: `Built by ${APP_CONFIG.author.shortName}`,
           variant: "link",
           href: APP_CONFIG.author.linkedin,

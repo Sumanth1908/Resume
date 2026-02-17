@@ -19,6 +19,15 @@ const Footer: React.FC = () => {
                         {APP_CONFIG.author.shortName}
                     </a>
                 </Box>
+                <Box margin={{ top: "m" }}>
+                    <a href={APP_CONFIG.author.buyMeACoffee} target="_blank" rel="noopener noreferrer">
+                        <img
+                            src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+                            alt="Buy Me A Coffee"
+                            style={{ height: "40px", width: "auto" }}
+                        />
+                    </a>
+                </Box>
                 <Box variant="small" margin={{ top: "xs" }} color="text-label">
                     © {new Date().getFullYear()} Resume Builder. All rights reserved.
                 </Box>
