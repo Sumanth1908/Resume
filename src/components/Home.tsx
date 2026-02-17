@@ -15,6 +15,7 @@ import { AppLayout, Container } from "@cloudscape-design/components";
 import Modal from "@cloudscape-design/components/modal";
 import ButtonDropdown from "@cloudscape-design/components/button-dropdown";
 import AppHeader from "./AppHeader";
+import Footer from "./Footer";
 import { JSONExportService } from "../services/jsonExport";
 import Flashbar, { FlashbarProps } from "@cloudscape-design/components/flashbar";
 
@@ -178,7 +179,7 @@ const Home: React.FC = () => {
         </div>
       )}
       <div style={{ position: "sticky", top: 0, zIndex: 1001 }}>
-        <AppHeader />
+        <AppHeader title="Resume Builder" />
       </div>
       <AppLayout
         toolsHide
@@ -188,6 +189,12 @@ const Home: React.FC = () => {
             <SpaceBetween size="l">
               <Header
                 variant="h1"
+                description="Manage and create your professional resumes."
+              >
+                Resume Dashboard
+              </Header>
+              <Header
+                variant="h2"
                 actions={
                   <SpaceBetween direction="horizontal" size="xs">
                     <Input
@@ -303,6 +310,7 @@ const Home: React.FC = () => {
                   }
                 />
               )}
+              <Footer />
             </SpaceBetween>
           </Container>
         }

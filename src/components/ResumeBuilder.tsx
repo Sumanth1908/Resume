@@ -22,6 +22,7 @@ import Box from "@cloudscape-design/components/box";
 import Container from "@cloudscape-design/components/container";
 import AppLayout from "@cloudscape-design/components/app-layout";
 import AppHeader from "./AppHeader";
+import Footer from "./Footer";
 import FloatingAddButton from "./FloatingAddButton";
 import Modal from "@cloudscape-design/components/modal";
 import Flashbar, { FlashbarProps } from "@cloudscape-design/components/flashbar";
@@ -452,6 +453,7 @@ const ResumeBuilder: React.FC = () => {
                     )}
                   </>
                 )}
+                <Footer />
               </SpaceBetween>
             </Container>
           </div>

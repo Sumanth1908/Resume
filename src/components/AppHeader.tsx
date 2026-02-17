@@ -1,5 +1,6 @@
 import React from "react";
 import TopNavigation from "@cloudscape-design/components/top-navigation";
+import { APP_CONFIG } from "../config/constants";
 
 interface AppHeaderProps {
   title?: string;
@@ -15,7 +16,16 @@ const AppHeader: React.FC<AppHeaderProps> = ({ title, utilities }) => {
         overflowMenuTriggerText: "More",
         searchIconAriaLabel: "Search",
       }}
-      utilities={utilities || []}
+      utilities={[
+        ...(utilities || []),
+        {
+          type: "button",
+          text: `Built by ${APP_CONFIG.author.shortName}`,
+          variant: "link",
+          href: APP_CONFIG.author.linkedin,
+          external: true
+        }
+      ]}
     />
   );
 };
