@@ -132,18 +132,33 @@ const SkillEditor: React.FC<SkillEditorProps> = ({ skill, onClose }) => {
         {formData.category === "technical" && (
           <FormField
             label="Proficiency Level"
-            description="Rate your skill level"
+            description="Select your skill level (1-5)"
             stretch
           >
-            <div className="skill-level-group">
-              <Input
-                inputMode="numeric"
-                value={formData.level.toString()}
-                onChange={(e) => handleChange(e.detail.value, "level")}
-                placeholder="0-100"
-              />
-              <span className="skill-level-value">{formData.level}%</span>
-            </div>
+            <Select
+              options={[
+                { label: "1 - Beginner", value: "20" },
+                { label: "2 - Basic", value: "40" },
+                { label: "3 - Proficient", value: "60" },
+                { label: "4 - Advanced", value: "80" },
+                { label: "5 - Expert", value: "100" },
+              ]}
+              selectedOption={
+                [
+                  { label: "1 - Beginner", value: "20" },
+                  { label: "2 - Basic", value: "40" },
+                  { label: "3 - Proficient", value: "60" },
+                  { label: "4 - Advanced", value: "80" },
+                  { label: "5 - Expert", value: "100" },
+                ].find(opt => opt.value === formData.level.toString()) || { label: "3 - Proficient", value: "60" }
+              }
+              onChange={(e) =>
+                handleChange(
+                  e.detail.selectedOption.value || "60",
+                  "level"
+                )
+              }
+            />
           </FormField>
         )}
       </Form>

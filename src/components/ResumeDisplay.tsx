@@ -180,11 +180,24 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
                             </div>
                           )}
                         </div>
-                        <div className="skill-bar">
-                          <div
-                            className="skill-level"
-                            style={{ width: `${skill.level}%` }}
-                          ></div>
+                        <div className="skill-blocks">
+                          {[1, 2, 3, 4, 5].map((idx) => (
+                            <div
+                              key={idx}
+                              className={`skill-block ${skill.level >= idx * 20 ? "active" : ""}`}
+                            ></div>
+                          ))}
+                        </div>
+                        <div className="skill-level-label">
+                          {skill.level <= 20
+                            ? "Beginner"
+                            : skill.level <= 40
+                              ? "Basic"
+                              : skill.level <= 60
+                                ? "Proficient"
+                                : skill.level <= 80
+                                  ? "Advanced"
+                                  : "Expert"}
                         </div>
                       </div>
                     ))}

@@ -570,22 +570,58 @@
   margin-bottom: 2px;
 }
 
-.skill-bar {
-  height: 6px;
+.skill-blocks {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.skill-block {
+  flex: 1;
+  height: 8px;
   background: #e0e0e0;
-  border-radius: 3px;
-  overflow: hidden;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
-.resume-display.preview-mode .skill-bar {
-  height: 4px;
-  border-radius: 2px;
-}
-
-.skill-level {
-  height: 100%;
+.skill-block.active {
   background: var(--resume-theme-color);
-  transition: width 0.3s ease;
+}
+
+/* Gradient effect - increasing intensity */
+.skill-block.active:nth-child(1) {
+  opacity: 0.3;
+}
+
+.skill-block.active:nth-child(2) {
+  opacity: 0.45;
+}
+
+.skill-block.active:nth-child(3) {
+  opacity: 0.65;
+}
+
+.skill-block.active:nth-child(4) {
+  opacity: 0.85;
+}
+
+.skill-block.active:nth-child(5) {
+  opacity: 1;
+}
+
+.skill-level-label {
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.resume-display.preview-mode .skill-block {
+  height: 5px;
+}
+
+.resume-display.preview-mode .skill-level-label {
+  font-size: 8.5pt;
 }
 
 .additional-skill-item {
