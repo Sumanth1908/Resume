@@ -1,2 +1,7 @@
 node_modules
 .vscode/*
+build/
+dist/
+.env
+.DS_Store
+yarn-error.log

@@ -21,13 +21,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'npm'
+          cache: 'yarn'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: yarn install
 
       - name: Build
-        run: npm run build
+        run: yarn build
         env:
           REACT_APP_USE_HASH_ROUTER: true
 

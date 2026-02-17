@@ -4,15 +4,15 @@
 FROM node:18-alpine AS build
 WORKDIR /app
 
-# If you have a package-lock.json, copying it here speeds install and makes it reproducible
-COPY package.json package-lock.json* ./
+# If you have a yarn.lock, copying it here speeds install and makes it reproducible
+COPY package.json yarn.lock* ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
+RUN yarn install
 
 # Copy source and build
 COPY . .
-RUN npm run build
+RUN yarn build
 
 # 2) Production image with nginx
 FROM nginx:stable-alpine
