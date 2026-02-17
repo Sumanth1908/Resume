@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for building the React TypeScript app and serving with nginx
 
 # 1) Build stage
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 
 # If you have a yarn.lock, copying it here speeds install and makes it reproducible
