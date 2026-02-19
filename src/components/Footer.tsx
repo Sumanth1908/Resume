@@ -29,7 +29,7 @@ const Footer: React.FC = () => {
                     </a>
                 </Box>
                 <Box variant="small" margin={{ top: "xs" }} color="text-label">
-                    © {new Date().getFullYear()} Resume Builder. All rights reserved.
+                    © {new Date().getFullYear()} {APP_CONFIG.author.name}. All rights reserved.
                 </Box>
             </Box>
         </footer>
