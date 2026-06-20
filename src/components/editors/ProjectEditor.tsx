@@ -15,6 +15,7 @@ import FormField from "@cloudscape-design/components/form-field";
 import Input from "@cloudscape-design/components/input";
 import Textarea from "@cloudscape-design/components/textarea";
 import Select from "@cloudscape-design/components/select";
+import Checkbox from "@cloudscape-design/components/checkbox";
 
 interface ProjectEditorProps {
   project?: Project;
@@ -37,6 +38,7 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
     responsibilities: [""],
     technologies: [""],
     company: undefined,
+    hidden: false,
   });
 
   // Selected company option for the Select component
@@ -56,6 +58,7 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
         technologies:
           project.technologies.length > 0 ? project.technologies : [""],
         company: project.company,
+        hidden: project.hidden || false,
       });
 
       // Set selected company option
@@ -67,7 +70,7 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
     }
   }, [project]);
 
-  const handleChange = (value: string, name: string) => {
+  const handleChange = (value: string | boolean, name: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -382,6 +385,15 @@ const ProjectEditor: React.FC<ProjectEditorProps> = ({ project, onClose }) => {
               Add Responsibility
             </Button>
           </div>
+        </FormField>
+
+        <FormField>
+          <Checkbox
+            checked={formData.hidden || false}
+            onChange={(e) => handleChange(e.detail.checked, "hidden")}
+          >
+            Hide from resume
+          </Checkbox>
         </FormField>
       </Form>
     </Modal>

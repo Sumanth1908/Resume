@@ -301,6 +301,14 @@
   margin-bottom: 20px;
 }
 
+.hidden-item {
+  opacity: 0.4;
+}
+
+.resume-display.preview-mode .hidden-item {
+  display: none !important;
+}
+
 .resume-display.preview-mode .job,
 .resume-display.preview-mode .education-item,
 .resume-display.preview-mode .project,

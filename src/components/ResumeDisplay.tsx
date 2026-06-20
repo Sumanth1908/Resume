@@ -11,10 +11,27 @@ import {
   reorderExperience,
   reorderProject,
   reorderSkill,
+  updateExperience,
+  updateEducation,
+  updateProject,
 } from "../store/resumeSlice";
 import Button from "@cloudscape-design/components/button";
 import { ResumeData } from "../types/resume";
 import "./ResumeDisplay.css";
+
+const EyeIcon = (
+  <svg viewBox="0 0 24 24" focusable="false">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+);
+
+const EyeOffIcon = (
+  <svg viewBox="0 0 24 24" focusable="false">
+    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"></path>
+    <line x1="1" y1="1" x2="23" y2="23"></line>
+  </svg>
+);
 
 interface ResumeDisplayProps {
   resume?: ResumeData;
@@ -51,13 +68,17 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
 
   const {
     contactInfo,
-    experiences,
-    projects,
+    experiences: rawExperiences,
+    projects: rawProjects,
     skills,
-    education,
+    education: rawEducation,
     awards,
     settings,
   } = displayResume;
+
+  const experiences = isPreview ? rawExperiences.filter(e => !e.hidden) : rawExperiences;
+  const projects = isPreview ? rawProjects.filter(p => !p.hidden) : rawProjects;
+  const education = isPreview ? rawEducation.filter(e => !e.hidden) : rawEducation;
 
   const visibility = settings?.sectionVisibility || {
     experience: true,
@@ -332,7 +353,7 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
             <div className="section">
               <h2 className="section-title">Experience</h2>
               {experiences.map((experience) => (
-                <div key={experience.id} className="job">
+                <div key={experience.id} className={`job ${experience.hidden ? "hidden-item" : ""}`}>
                   <div className="job-header">
                     <div>
                       <div className="company">
@@ -349,6 +370,14 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
                     </div>
                     {!isPreview && (
                       <div className="actions">
+                        <Button
+                          variant="icon"
+                          iconSvg={experience.hidden ? EyeOffIcon : EyeIcon}
+                          onClick={() =>
+                            dispatch(updateExperience({ ...experience, hidden: !experience.hidden }))
+                          }
+                          ariaLabel={experience.hidden ? "Show experience" : "Hide experience"}
+                        />
                         <Button
                           variant="icon"
                           iconName="edit"
@@ -428,7 +457,7 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
           <div className="section">
             <h2 className="section-title">Education</h2>
             {education.map((edu) => (
-              <div key={edu.id} className="education-item">
+              <div key={edu.id} className={`education-item ${edu.hidden ? "hidden-item" : ""}`}>
                 <div className="education-header">
                   <div>
                     <div className="institution">
@@ -441,6 +470,14 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
                   </div>
                   {!isPreview && (
                     <div className="actions">
+                      <Button
+                        variant="icon"
+                        iconSvg={edu.hidden ? EyeOffIcon : EyeIcon}
+                        onClick={() =>
+                          dispatch(updateEducation({ ...edu, hidden: !edu.hidden }))
+                        }
+                        ariaLabel={edu.hidden ? "Show education" : "Hide education"}
+                      />
                       <Button
                         variant="icon"
                         iconName="edit"
@@ -480,7 +517,7 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
           <div className="section">
             <h2 className="section-title">Projects</h2>
             {projects.map((project, index) => (
-              <div key={project.id} className="project">
+              <div key={project.id} className={`project ${project.hidden ? "hidden-item" : ""}`}>
                 <div className="project-header">
                   <div>
                     <div className="project-title">
@@ -497,6 +534,14 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
                   </div>
                   {!isPreview && (
                     <div className="actions">
+                      <Button
+                        variant="icon"
+                        iconSvg={project.hidden ? EyeOffIcon : EyeIcon}
+                        onClick={() =>
+                          dispatch(updateProject({ ...project, hidden: !project.hidden }))
+                        }
+                        ariaLabel={project.hidden ? "Show project" : "Hide project"}
+                      />
                       <Button
                         variant="icon"
                         iconName="edit"

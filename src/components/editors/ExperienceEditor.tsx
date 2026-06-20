@@ -67,6 +67,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     current: false,
     description: "",
     responsibilities: [""],
+    hidden: false,
   });
 
   useEffect(() => {
@@ -83,11 +84,12 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
           experience.responsibilities.length > 0
             ? experience.responsibilities
             : [""],
+        hidden: experience.hidden || false,
       });
     }
   }, [experience]);
 
-  const handleChange = (value: string, name: string) => {
+  const handleChange = (value: string | boolean, name: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -273,6 +275,12 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
               onChange={(e) => handleCheckboxChange(e.detail.checked)}
             >
               Currently working here
+            </Checkbox>
+            <Checkbox
+              checked={formData.hidden || false}
+              onChange={(e) => handleChange(e.detail.checked, "hidden")}
+            >
+              Hide from resume
             </Checkbox>
           </FormField>
         </div>

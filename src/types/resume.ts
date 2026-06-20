@@ -17,6 +17,7 @@ export interface Experience {
   current: boolean;
   description: string;
   responsibilities: string[];
+  hidden?: boolean;
 }
 
 export interface Project {
@@ -27,6 +28,7 @@ export interface Project {
   responsibilities: string[];
   technologies: string[];
   company?: string; // Optional: tag project with a company from experience
+  hidden?: boolean;
 }
 
 export interface Skill {
@@ -44,6 +46,7 @@ export interface Education {
   startDate: string;
   endDate: string;
   description: string;
+  hidden?: boolean;
 }
 
 export interface Award {

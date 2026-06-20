@@ -11,6 +11,7 @@ import FormField from "@cloudscape-design/components/form-field";
 import Input from "@cloudscape-design/components/input";
 import DatePicker from "@cloudscape-design/components/date-picker";
 import Textarea from "@cloudscape-design/components/textarea";
+import Checkbox from "@cloudscape-design/components/checkbox";
 // ...existing code...
 
 interface EducationEditorProps {
@@ -63,6 +64,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
     startDate: "",
     endDate: "",
     description: "",
+    hidden: false,
   });
 
   useEffect(() => {
@@ -74,6 +76,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
         startDate: dateToPickerFormat(education.startDate),
         endDate: dateToPickerFormat(education.endDate),
         description: education.description,
+        hidden: education.hidden || false,
       });
     } else {
       setFormData({
@@ -83,6 +86,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
         startDate: "",
         endDate: "",
         description: "",
+        hidden: false,
       });
     }
   }, [education]);
@@ -90,7 +94,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
   // Modal visibility control
   const [visible, setVisible] = useState<boolean>(true);
 
-  const handleChange = (value: string, name: string) => {
+  const handleChange = (value: string | boolean, name: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -201,6 +205,15 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
             rows={3}
             placeholder="Brief summary of your education, GPA, or honors"
           />
+        </FormField>
+
+        <FormField>
+          <Checkbox
+            checked={formData.hidden || false}
+            onChange={(e) => handleChange(e.detail.checked, "hidden")}
+          >
+            Hide from resume
+          </Checkbox>
         </FormField>
       </Form>
     </Modal>
