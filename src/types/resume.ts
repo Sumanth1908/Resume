@@ -69,6 +69,7 @@ export interface ResumeSettings {
     education: boolean;
     awards: boolean;
   };
+  sectionOrder?: string[];
 }
 
 export interface ResumeData {

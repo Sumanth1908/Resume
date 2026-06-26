@@ -303,6 +303,32 @@ const resumeSlice = createSlice({
       }
     },
 
+    reorderSection: (
+      state,
+      action: PayloadAction<{ section: string; direction: "up" | "down" }>
+    ) => {
+      if (state.currentResume && state.currentResume.settings) {
+        let order = state.currentResume.settings.sectionOrder;
+        if (!order || order.length === 0) {
+          order = ["experience", "education", "projects", "skills", "awards"];
+        }
+        
+        const { section, direction } = action.payload;
+        const idx = order.indexOf(section);
+        if (idx === -1) return;
+        const newIndex = direction === "up" ? idx - 1 : idx + 1;
+        if (newIndex < 0 || newIndex >= order.length) return;
+        
+        const newOrder = [...order];
+        const temp = newOrder[newIndex];
+        newOrder[newIndex] = newOrder[idx];
+        newOrder[idx] = temp;
+        
+        state.currentResume.settings.sectionOrder = newOrder;
+        state.currentResume.updatedAt = new Date().toISOString();
+      }
+    },
+
     setEditing: (
       state,
       action: PayloadAction<{
@@ -357,6 +383,7 @@ export const {
   deleteAward,
   setEditing,
   updateSettings,
+  reorderSection,
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;

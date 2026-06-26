@@ -256,7 +256,8 @@ const ResumeBuilder: React.FC = () => {
     }
   };
 
-  const togglePreview = () => {
+  const togglePreview = (e?: any) => {
+    if (e && e.preventDefault) e.preventDefault();
     setIsPreviewMode(!isPreviewMode);
   };
 
@@ -321,13 +322,13 @@ const ResumeBuilder: React.FC = () => {
           type: "button" as const,
           iconName: "settings",
           text: "Customize",
-          onClick: () => setToolsOpen(!toolsOpen),
+          onClick: (e: any) => { if(e && e.preventDefault) e.preventDefault(); setToolsOpen(!toolsOpen); },
         },
         {
           type: "button" as const,
           text: isSaving ? "Saving..." : "Save",
           disabled: isSaving,
-          onClick: () => handleSave(false),
+          onClick: (e: any) => { if(e && e.preventDefault) e.preventDefault(); handleSave(false); },
         },
         {
           type: "button" as const,
