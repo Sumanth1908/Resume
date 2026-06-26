@@ -11,7 +11,6 @@ import {
   reorderExperience,
   reorderProject,
   reorderSkill,
-  reorderSection,
   updateExperience,
   updateEducation,
   updateProject,
@@ -86,7 +85,7 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
   const projects = isPreview ? rawProjects.filter(p => !p.hidden) : rawProjects;
   const education = isPreview ? rawEducation.filter(e => !e.hidden) : rawEducation;
 
-  
+
   const visibility = settings?.sectionVisibility || {
     experience: true,
     projects: true,
@@ -94,7 +93,6 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
     education: true,
     awards: true,
   };
-  const sectionOrder = settings?.sectionOrder || ["experience", "projects", "education", "skills", "awards"];
 
 
   const technicalSkills = skills.filter(
@@ -160,7 +158,7 @@ const ResumeDisplay: React.FC<ResumeDisplayProps> = ({
                         <div className="skill-header" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ color: "var(--resume-theme-color)", marginRight: "4px" }}>•</span> <span className="skill-name" style={{ fontWeight: "bold" }}>{skill.name}</span>
-                            
+
                           </div>
                           {!isPreview && (
                             <div className="actions">
